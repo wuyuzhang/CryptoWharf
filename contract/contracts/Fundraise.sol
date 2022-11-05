@@ -4,6 +4,15 @@ pragma solidity ^0.8.9;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "hardhat/console.sol";
 
+import "../interfaces/IIbAlluo.sol";
+import "../interfaces/superfluid/ISuperfluid.sol";
+import "../interfaces/superfluid/ISuperfluidToken.sol";
+import "../interfaces/superfluid/ISuperfluid.sol";
+import "../interfaces/superfluid/IConstantFlowAgreementV1.sol";
+import "../interfaces/superfluid/IInstantDistributionAgreementV1.sol";
+
+import {CFAv1Library} from "./superfluid/libs/CFAv1Library.sol";
+
 contract Fundraise {
     struct FundraisePlan {
         string plan_id;
@@ -24,6 +33,11 @@ contract Fundraise {
         uint256 amount;
     }
 
+    bytes32 public constant CFA_ID =
+        keccak256("org.superfluid-finance.agreements.ConstantFlowAgreement.v1");
+    address public constant superfluidHost =
+        0x3E14dC1b13c488a8d5D310918780c983bD5982E7;
+
     // The owner of the contract
     address public _owner;
 
@@ -37,10 +51,22 @@ contract Fundraise {
 
     mapping(address => uint256) _balances;
 
-    uint256 public btcPrice;
+    address _alluo_contract;
 
-    constructor(address payable _tellorAddress) public {
+    constructor(address alluo_contract) public {
         _owner = msg.sender;
+        _alluo_contract = alluo_contract;
+
+        // Initialise key Superfluid parameters
+        ISuperfluid host = ISuperfluid(superfluidHost);
+        cfaV1Lib = CFAv1Library.InitData(
+            host,
+            IConstantFlowAgreementV1(address(host.getAgreementClass(CFA_ID)))
+        );
+
+        // Grant permissions to the ibAlluo contract to create streams on your behalf
+        bytes memory data = IIbAlluo(_alluo_contract).formatPermissions();
+        host.callAgreement(host.getAgreementClass(CFA_ID), data, "0x");
     }
 
     function updateBaseTokenContract(address base_token_contract) public {
@@ -150,9 +176,19 @@ contract Fundraise {
             "Raising hasn't finished yet"
         );
 
-        _balances[_plan_id_to_plan[plan_id].payout_address] += _plan_id_to_plan[
-            plan_id
-        ].locked_amount;
+        // Replace with alluo constant flow
+        IIbAlluo(_alluo_contract).deposit(
+            _default_base_token_contract,
+            _plan_id_to_plan[plan_id].locked_amount
+        );
+        IIbAlluo(_alluo_contract).createFlow(
+            _plan_id_to_plan[plan_id].payout_address,
+            1,
+            _plan_id_to_plan[plan_id].locked_amount
+        );
+        // _balances[_plan_id_to_plan[plan_id].payout_address] += _plan_id_to_plan[
+        //     plan_id
+        // ].locked_amount;
         _plan_id_to_plan[plan_id].locked_amount = 0;
     }
 
