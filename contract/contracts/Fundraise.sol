@@ -4,12 +4,12 @@ pragma solidity ^0.8.9;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "hardhat/console.sol";
 
-import "../interfaces/IIbAlluo.sol";
-import "../interfaces/superfluid/ISuperfluid.sol";
-import "../interfaces/superfluid/ISuperfluidToken.sol";
-import "../interfaces/superfluid/ISuperfluid.sol";
-import "../interfaces/superfluid/IConstantFlowAgreementV1.sol";
-import "../interfaces/superfluid/IInstantDistributionAgreementV1.sol";
+import "./interfaces/IIbAlluo.sol";
+import "./interfaces/superfluid/ISuperfluid.sol";
+import "./interfaces/superfluid/ISuperfluidToken.sol";
+import "./interfaces/superfluid/ISuperfluid.sol";
+import "./interfaces/superfluid/IConstantFlowAgreementV1.sol";
+import "./interfaces/superfluid/IInstantDistributionAgreementV1.sol";
 
 import {CFAv1Library} from "./superfluid/libs/CFAv1Library.sol";
 
@@ -35,8 +35,8 @@ contract Fundraise {
 
     bytes32 public constant CFA_ID =
         keccak256("org.superfluid-finance.agreements.ConstantFlowAgreement.v1");
-    address public constant superfluidHost =
-        0x3E14dC1b13c488a8d5D310918780c983bD5982E7;
+    // address public constant superfluidHost =
+    //     0x3E14dC1b13c488a8d5D310918780c983bD5982E7;
 
     // The owner of the contract
     address public _owner;
@@ -53,12 +53,15 @@ contract Fundraise {
 
     address _alluo_contract;
 
-    constructor(address alluo_contract) public {
+    address _superfluid_host;
+
+    constructor(address alluo_contract, address superfluid_host) public {
         _owner = msg.sender;
         _alluo_contract = alluo_contract;
+        _superfluid_host = superfluid_host;
 
         // Initialise key Superfluid parameters
-        ISuperfluid host = ISuperfluid(superfluidHost);
+        ISuperfluid host = ISuperfluid(_superfluid_host);
         cfaV1Lib = CFAv1Library.InitData(
             host,
             IConstantFlowAgreementV1(address(host.getAgreementClass(CFA_ID)))
