@@ -94,4 +94,30 @@ async function signIn (req, res) {
   }
 }
 
-module.exports = { getSignatureNonce, signIn }
+/**
+ * Authenticate method
+ * @param {req} req
+ * @param {res} res
+ */
+async function authenticate (req, res) {
+  const userUuid = req.body.user_uuid
+  const authToken = req.body.auth_token
+  if (!userUuid || !authToken) {
+    res.status(400).send('Not valid')
+    return
+  }
+
+  const userLoginInfo = await getData('users/' + userUuid)
+  if (!userLoginInfo || userLoginInfo.auth_token !==
+      authToken || userLoginInfo.auth_token_expires_at < Date.now()) {
+    res.status(403).send('Not authenticated')
+    return
+  }
+  return {
+    user_uuid: userUuid,
+    wallet_address: userLoginInfo.wallet_address,
+    auth_token: authToken
+  }
+}
+
+module.exports = { getSignatureNonce, signIn, authenticate }
