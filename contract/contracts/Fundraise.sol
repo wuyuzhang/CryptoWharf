@@ -88,33 +88,117 @@ contract Fundraise {
         ];
     }
 
+    function _internalInvestInPlan(
+        address investor,
+        uint256 amount,
+        string memory plan_id
+    ) internal {
+        require(_balances[investor] >= amount, "Insufficient funds");
+        require(
+            block.timestamp <= _plan_id_to_plan[plan_id].expiration_time,
+            "Plan already closed"
+        );
+        require(
+            amount >= _plan_id_to_plan[plan_id].minimum_investment_amount,
+            "Min investment requirements not met"
+        );
+        require(
+            amount + _plan_id_to_plan[plan_id].total_funded_amount <=
+                _plan_id_to_plan[plan_id].target_amount * 2,
+            "Oversubscribed"
+        );
+
+        _balances[investor] -= amount;
+        _plan_id_to_plan[plan_id].total_funded_amount += amount;
+        _plan_id_to_plan[plan_id].locked_amount += amount;
+        Investment memory investment;
+        investment.plan_id = plan_id;
+        investment.investor = investor;
+        investment.amount = amount;
+        _plan_allocations[plan_id].push(investment);
+        _investor_investments[investor].push(investment);
+    }
+
     // For investors to invest in a plan
     function investInPlan(uint256 amount, string memory plan_id) external {
-        // TODO
+        _internalInvestInPlan(msg.sender, amount, plan_id);
+    }
+
+    function delegateInvestInPlan(
+        address investor,
+        uint256 amount,
+        string memory plan_id
+    ) external {
+        require(msg.sender == _owner, "Only allowed by owner");
+        _internalInvestInPlan(investor, amount, plan_id);
     }
 
     // To unlock funds from a plan
     function unlockPlan(string memory plan_id) public {
-        // TODO
+        require(
+            msg.sender == _owner ||
+                msg.sender == _plan_id_to_plan[plan_id].payout_address,
+            "Only allowed by owners"
+        );
+        require(
+            _plan_id_to_plan[plan_id].total_funded_amount >=
+                _plan_id_to_plan[plan_id].target_amount,
+            "Target amount not met"
+        );
+        require(
+            _plan_id_to_plan[plan_id].expiration_time < block.timestamp,
+            "Raising hasn't finished yet"
+        );
+
+        _balances[_plan_id_to_plan[plan_id].payout_address] += _plan_id_to_plan[
+            plan_id
+        ].locked_amount;
+        _plan_id_to_plan[plan_id].locked_amount = 0;
     }
 
     // To refund funds from a plan
     function refundPlan(string memory plan_id) public {
-        // TODO
+        require(
+            _plan_id_to_plan[plan_id].expiration_time < block.timestamp,
+            "Raising hasn't expired"
+        );
+        require(
+            _plan_id_to_plan[plan_id].total_funded_amount <
+                _plan_id_to_plan[plan_id].target_amount,
+            "Plan is funded, no longer refundable"
+        );
+        require(
+            _plan_id_to_plan[plan_id].locked_amount > 0,
+            "Plan already refunded"
+        );
+        for (uint256 i = 0; i < _plan_allocations[plan_id].length; i++) {
+            address investor = _plan_allocations[plan_id][i].investor;
+            uint256 amount = _plan_allocations[plan_id][i].amount;
+            _balances[investor] += amount;
+        }
+        _plan_id_to_plan[plan_id].locked_amount = 0;
     }
 
     // For anyone to withdraw their tokens
-    function withdrawTokens(uint256 amount) external {
-        // TODO
+    function withdraw(uint256 amount) external {
+        require(_balances[msg.sender] >= amount, "Insufficient fundss");
+        IERC20 ERC20Contract = IERC20(_default_base_token_contract);
+        ERC20Contract.transfer(msg.sender, amount);
+        _balances[msg.sender] -= amount;
     }
 
     // For investors to deposit token
     function depositTokens(uint256 amount) external {
-        // TODO
+        IERC20 ERC20Contract = IERC20(_default_base_token_contract);
+        ERC20Contract.transferFrom(msg.sender, address(this), amount);
+        // TODO: swap incoming token to our base token
+        _balances[msg.sender] += amount;
     }
 
     // To view balance of an address
     function balanceOf(address account) public view returns (uint256) {
         return _balances[account];
     }
+
+    // TODO: Get the list of investors of a project, for frontend to check and compare with lens protocol friends
 }
