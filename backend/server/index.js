@@ -9,6 +9,7 @@ const functions = require('firebase-functions')
 
 const { getSignatureNonce, signIn } = require('./auth')
 const { createProfile } = require('./profile')
+const { createProject, listProjects } = require('./project')
 
 const cors = require('cors')
 // Automatically allow cross-origin requests
@@ -37,6 +38,22 @@ app.post('/api/sign_in', (req, res) => {
 
 app.post('/api/create_profile', (req, res) => {
   createProfile(req, res).then((response) => {
+    if (response) {
+      res.json(response)
+    }
+  })
+})
+
+app.post('/api/create_project', (req, res) => {
+  createProject(req, res).then((response) => {
+    if (response) {
+      res.json(response)
+    }
+  })
+})
+
+app.post('/api/list_projects', (req, res) => {
+  listProjects(req, res).then((response) => {
     if (response) {
       res.json(response)
     }
