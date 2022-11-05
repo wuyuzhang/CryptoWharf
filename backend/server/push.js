@@ -1,5 +1,6 @@
 const PushAPI = require('@pushprotocol/restapi')
 const ethers = require('ethers')
+const Validator = require('sns-payload-validator');
 
 const PK = 'ba28f8b5520688563dabda382db5b955164a261dcacf42e89dde7bf806033ae3' // channel private key - test account
 const Pkey = `0x${PK}`
@@ -33,4 +34,41 @@ const sendNotification = async (recipientAddress, title, body) => {
   }
 }
 
-module.exports = { sendNotification }
+/**
+ * receivePushNotification
+ * @param {req} req
+ * @param {res} res
+ */
+async function receivePushNotification(req, res) {
+  const buffers = [];
+
+  for await (const chunk of req) {
+    buffers.push(chunk);
+  }
+
+  const data = Buffer.concat(buffers).toString();
+
+  if (!data) {
+    console.log("Invalid data received, hence skipping")
+    res.status(200).json({
+        "message": 'Invalid data received'
+    });
+    return;
+  }
+
+  const payload = JSON.parse(data);
+
+  try {
+    await Validator.validate(payload)
+  } catch (err) {
+    console.log('payload sender validation failed, hence skipping\n', payload);
+    res.status(200).json({
+        "message": 'Your message could not validated'
+    });
+    return;
+  }
+
+  console.log('Received message from sns', payload);
+}
+
+module.exports = { sendNotification, receivePushNotification }

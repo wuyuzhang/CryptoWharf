@@ -11,6 +11,7 @@ const { getSignatureNonce, signIn } = require('./auth')
 const { createProfile } = require('./profile')
 const { createProject, listProjects } = require('./project')
 const { verifyWorldcoinProof, checkIfUserVerified } = require('./worldcoin');
+const { receivePushNotification } = require('./push');
 
 const cors = require('cors')
 // Automatically allow cross-origin requests
@@ -71,6 +72,14 @@ app.post('/api/verify_worldcoin', (req, res) => {
 
 app.post('/api/check_user_unique_human', (req, res) => {
   checkIfUserVerified(req, res).then((response) => {
+    if (response) {
+      res.json(response);
+    }
+  });
+});
+
+app.post('/api/push_hook', (req, res) => {
+  receivePushNotification(req, res).then((response) => {
     if (response) {
       res.json(response);
     }
