@@ -3,11 +3,25 @@ const { ethers, network } = require("hardhat");
 
 
 describe('Fundraise contract', () => {
+  before(async function () {
+    //We are forking Polygon mainnet, please set Alchemy key in .env
+    await network.provider.request({
+      method: "hardhat_reset",
+      params: [{
+        forking: {
+          enabled: true,
+          jsonRpcUrl: "https://polygon-mainnet.g.alchemyapi.io/v2/u_FXALLy4x1YgU3d25d6jSmEvX2pgdcc",
+          //you can fork from last block by commenting next line
+        },
+      },],
+    });
+  });
+
   it("Test create and read plan", async function () {
     // Deploy Fundraise contract
     const [owner, addr1, addr2, addr3] = await ethers.getSigners();
     const Fundraise = await ethers.getContractFactory("Fundraise");
-    const fundraiseContract = await Fundraise.deploy("0x51c59c6cAd28ce3693977F2feB4CfAebec30d8a2");
+    const fundraiseContract = await Fundraise.deploy("0xC2DbaAEA2EfA47EBda3E572aa0e55B742E408BF6", "0x3E14dC1b13c488a8d5D310918780c983bD5982E7");
     expect(await fundraiseContract._owner()).to.equal(owner.address);
 
     // Test create and view plan
@@ -30,18 +44,16 @@ describe('Fundraise contract', () => {
 
   it("Test deposit, invest, unlock plan and withdraw", async function () {
     const [owner, founder, investor1, investor2] = await ethers.getSigners();
+    let usdcWhale = await ethers.getImpersonatedSigner("0xf89d7b9c864f589bbf53a82105107622b35eaa40");
 
     // Deploy Token contract and transfer funds to investor accounts
-    const Token = await ethers.getContractFactory("Token");
-    const tokenContract = await Token.deploy();
-    await tokenContract.connect(owner).transfer(investor1.address, 200);
-    expect(await tokenContract.balanceOf(investor1.address)).to.equal(200);
-    await tokenContract.connect(owner).transfer(investor2.address, 500);
-    expect(await tokenContract.balanceOf(investor2.address)).to.equal(500);
+    const tokenContract = await ethers.getContractAt("Token", "0x2791bca1f2de4661ed88a30c99a7a9449aa84174"); // USDC
+    await tokenContract.connect(usdcWhale).transfer(investor1.address, 200);
+    await tokenContract.connect(usdcWhale).transfer(investor2.address, 500);
 
     // Deploy Fundraise contract and initialize base token contract as above Token contract
     const Fundraise = await ethers.getContractFactory("Fundraise");
-    const fundraiseContract = await Fundraise.deploy("0x51c59c6cAd28ce3693977F2feB4CfAebec30d8a2");
+    const fundraiseContract = await Fundraise.deploy("0xC2DbaAEA2EfA47EBda3E572aa0e55B742E408BF6", "0x3E14dC1b13c488a8d5D310918780c983bD5982E7");
     expect(await fundraiseContract._owner()).to.equal(owner.address);
     await fundraiseContract.connect(owner).updateBaseTokenContract(tokenContract.address);
 
@@ -137,7 +149,7 @@ describe('Fundraise contract', () => {
 
     // Deploy Fundraise contract and initialize base token contract as above Token contract
     const Fundraise = await ethers.getContractFactory("Fundraise");
-    const fundraiseContract = await Fundraise.deploy("0x51c59c6cAd28ce3693977F2feB4CfAebec30d8a2");
+    const fundraiseContract = await Fundraise.deploy("0xC2DbaAEA2EfA47EBda3E572aa0e55B742E408BF6", "0x3E14dC1b13c488a8d5D310918780c983bD5982E7");
     expect(await fundraiseContract._owner()).to.equal(owner.address);
     await fundraiseContract.connect(owner).updateBaseTokenContract(tokenContract.address);
 

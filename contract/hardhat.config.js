@@ -14,10 +14,14 @@ const ALCHEMY_API_KEY = "X1f3JnDLrPzevSh88sh4AeeFruZQvzLJ";
 const GOERLI_PRIVATE_KEY = "d33782afaa8a29fdd6438906164997a91a7ad982d062dfea5b186943ee12efb1";
 
 module.exports = {
-  solidity: "0.8.9",
+  solidity: "0.8.17",
   networks: {
     goerli: {
       url: `https://eth-goerli.alchemyapi.io/v2/${ALCHEMY_API_KEY}`,
+      accounts: [GOERLI_PRIVATE_KEY]
+    },
+    polygon: {
+      url: `https://eth-polygon.alchemyapi.io/v2/${ALCHEMY_API_KEY}`,
       accounts: [GOERLI_PRIVATE_KEY]
     }
   }

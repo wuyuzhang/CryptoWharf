@@ -7,9 +7,36 @@ import "hardhat/console.sol";
 import "./interfaces/IIbAlluo.sol";
 import "./interfaces/superfluid/ISuperfluid.sol";
 
-// import {CFAv1Library} from "./superfluid/libs/CFAv1Library.sol";
+interface IERC777Recipient {
+    /**
+     * @dev Called by an {IERC777} token contract whenever tokens are being
+     * moved or created into a registered account (`to`). The type of operation
+     * is conveyed by `from` being the zero address or not.
+     *
+     * This call occurs _after_ the token contract's state is updated, so
+     * {IERC777-balanceOf}, etc., can be used to query the post-operation state.
+     *
+     * This function may revert to prevent the operation from being executed.
+     */
+    function tokensReceived(
+        address operator,
+        address from,
+        address to,
+        uint256 amount,
+        bytes calldata userData,
+        bytes calldata operatorData
+    ) external;
+}
 
-contract Fundraise {
+interface IERC1820RegistryUpgradeable {
+    function setInterfaceImplementer(
+        address a,
+        bytes32 b,
+        address c
+    ) external;
+}
+
+contract Fundraise is IERC777Recipient {
     struct FundraisePlan {
         string plan_id;
         string project_id;
@@ -32,6 +59,11 @@ contract Fundraise {
     bytes32 public constant CFA_ID =
         keccak256("org.superfluid-finance.agreements.ConstantFlowAgreement.v1");
 
+    IERC1820RegistryUpgradeable internal constant _ERC1820_REGISTRY =
+        IERC1820RegistryUpgradeable(0x1820a4B7618BdE71Dce8cdc73aAB6C95905faD24);
+    bytes32 private constant _TOKENS_RECIPIENT_INTERFACE_HASH =
+        keccak256("ERC777TokensRecipient");
+
     // The owner of the contract
     address public _owner;
 
@@ -49,8 +81,6 @@ contract Fundraise {
 
     address _superfluid_host;
 
-    // CFAv1Library.InitData cfaV1Lib;
-
     constructor(address alluo_contract, address superfluid_host) {
         _owner = msg.sender;
         _alluo_contract = alluo_contract;
@@ -60,6 +90,13 @@ contract Fundraise {
         ISuperfluid host = ISuperfluid(_superfluid_host);
         bytes memory data = IIbAlluo(_alluo_contract).formatPermissions();
         host.callAgreement(host.getAgreementClass(CFA_ID), data, "0x");
+
+        // Set up ERC777 Recipient
+        _ERC1820_REGISTRY.setInterfaceImplementer(
+            address(this),
+            _TOKENS_RECIPIENT_INTERFACE_HASH,
+            address(this)
+        );
     }
 
     function updateBaseTokenContract(address base_token_contract) public {
@@ -169,13 +206,18 @@ contract Fundraise {
             "Raising hasn't finished yet"
         );
 
+        IERC20 ERC20Contract = IERC20(_default_base_token_contract);
+        ERC20Contract.approve(
+            _alluo_contract,
+            _plan_id_to_plan[plan_id].locked_amount
+        );
         IIbAlluo(_alluo_contract).deposit(
             _default_base_token_contract,
             _plan_id_to_plan[plan_id].locked_amount
         );
         IIbAlluo(_alluo_contract).createFlow(
             _plan_id_to_plan[plan_id].payout_address,
-            _plan_id_to_plan[plan_id].locked_amount / 7776000, // Stream over 90 days
+            int96(int256(_plan_id_to_plan[plan_id].locked_amount / 7776000)), // Stream over 90 days
             _plan_id_to_plan[plan_id].locked_amount,
             7776000 // Stream over 90 days
         );
@@ -225,6 +267,15 @@ contract Fundraise {
     function balanceOf(address account) public view returns (uint256) {
         return _balances[account];
     }
+
+    function tokensReceived(
+        address operator,
+        address from,
+        address to,
+        uint256 amount,
+        bytes calldata userData,
+        bytes calldata operatorData
+    ) external {}
 
     // TODO: Get the list of investors of a project, for frontend to check and compare with lens protocol friends
 }
