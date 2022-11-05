@@ -4,20 +4,26 @@ import CreateProject from './pages/CreateProject.tsx';
 import LandingPage from './pages/LandingPage.tsx';
 import NavBar from './pages/NavBar.tsx';
 import { BrowserRouter, Route, Routes } from "react-router-dom"
+import { UserContext } from './context/UserContext.tsx';
+import { useState } from "react";
 
 function App() {
+  const [page, setPage] = useState('features');
+  const [user, setUser] = useState(null);
 
   return (
     <BrowserRouter>
       <div className="App">
-        <NavBar />
-        <Routes>
-          <Route path='/' element={<LandingPage />} />
-          <Route path='/features' element={<LandingPage />} />
-          <Route path='/onboarding' element={<CreateProject />} />
-          <Route path='/projects' element={<ProjectList />} />
-        </Routes>
-        <div className="footer">Built with ❤️ in ETHSanFrancisco</div>
+        <UserContext.Provider value={{ page, setPage, user, setUser }}>
+          <NavBar />
+          <Routes>
+            <Route path='/' element={<LandingPage />} />
+            <Route path='/features' element={<LandingPage />} />
+            <Route path='/onboarding' element={<CreateProject />} />
+            <Route path='/projects' element={<ProjectList />} />
+          </Routes>
+          <div className="footer">Built with ❤️ in ETHSanFrancisco</div>
+        </UserContext.Provider>
       </div>
     </BrowserRouter>
   );

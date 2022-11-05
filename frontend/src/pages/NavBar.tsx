@@ -6,6 +6,8 @@ import Button from '@mui/material/Button';
 // @ts-ignore
 import ConnectWallet from './ConnectWallet.tsx';
 import { Link } from 'react-router-dom'
+// @ts-ignore
+import { useUserContext } from '../context/UserContext.tsx';
 
 declare var require: any
 
@@ -16,6 +18,8 @@ const menus = [
 ];
 
 export default function NavBar() {
+    const { page, setPage } = useUserContext()
+
     return (
         <AppBar color='transparent' position="static">
             <Toolbar>
@@ -27,12 +31,15 @@ export default function NavBar() {
                     {menus.map(menu => (
                         <Link to={menu.href}
                             key={menu.text}
+                            onClick={() => {
+                                setPage(menu.text);
+                            }}
                             style={{ textDecoration: 'none', }}
                         >
                             <Button
-                                sx={{ my: 2, ml: 2, display: 'block' }}
+                                sx={{ my: 2, ml: 2, color: menu.text === page ? "white" : "black", display: 'block' }}
                                 key={menu.text}
-                                variant="text"
+                                variant={menu.text === page ? "contained" : "text"}
                             >
                                 {menu.text}
                             </Button>
