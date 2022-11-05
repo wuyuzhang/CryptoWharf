@@ -26,4 +26,4 @@ contract/cache
 contract/artifacts
 
 # firebase
-firebase_admin.json
+jomo_firebase_admin.json

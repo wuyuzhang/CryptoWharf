@@ -9,7 +9,7 @@ const uuid = require('uuid4')
  * @param {req} req
  * @param {res} res
  */
-async function createProject (req, res) {
+async function createProject(req, res) {
   // authenticate
   const userData = await authenticate(req, res)
   if (!userData) {
@@ -43,7 +43,7 @@ async function createProject (req, res) {
  * @param {req} req
  * @param {res} res
  */
-async function listProjects (req, res) {
+async function listProjects(req, res) {
   // authenticate
   const userData = await authenticate(req, res)
   if (!userData) {
@@ -58,4 +58,40 @@ async function listProjects (req, res) {
   }
 }
 
-module.exports = { createProject, listProjects }
+/**
+ * List projects
+ * @param {req} req
+ * @param {res} res
+ */
+async function investInProject(req, res) {
+  // authenticate
+  const userData = await authenticate(req, res)
+  if (!userData) {
+    return
+  }
+
+  const project_id = req.body.project_id
+  const amount = req.body.amount
+  const token_contract = req.body.token_contract
+
+  // get project object
+  const projectObject = await getData('projects/' + project_id)
+
+  // Call smartcontract to get progress and other info
+
+  // 0x swap token to project base token contract
+
+  // Grant allowance for the base token contract and the amount
+
+  // Call smartcontract to invest on user's behave
+
+  // Call smartcontract to check raising progress
+
+  // Send push if raise is reaching a milestone
+
+  return {
+    projectObject
+  }
+}
+
+module.exports = { createProject, listProjects, investInProject }

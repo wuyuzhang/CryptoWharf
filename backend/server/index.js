@@ -9,7 +9,7 @@ const functions = require('firebase-functions')
 
 const { getSignatureNonce, signIn } = require('./auth')
 const { createProfile } = require('./profile')
-const { createProject, listProjects } = require('./project')
+const { createProject, listProjects, investInProject } = require('./project')
 const { verifyWorldcoinProof, checkIfUserVerified } = require('./worldcoin');
 const { receivePushNotification } = require('./push');
 
@@ -56,6 +56,14 @@ app.post('/api/create_project', (req, res) => {
 
 app.post('/api/list_projects', (req, res) => {
   listProjects(req, res).then((response) => {
+    if (response) {
+      res.json(response)
+    }
+  })
+})
+
+app.post('/api/invest_in_project', (req, res) => {
+  investInProject(req, res).then((response) => {
     if (response) {
       res.json(response)
     }
