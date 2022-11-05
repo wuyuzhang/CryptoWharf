@@ -1,5 +1,7 @@
 const { setData, getData } = require('./firebase')
 const { authenticate } = require('./auth')
+const { sendNotification } = require('./push')
+
 const uuid = require('uuid4')
 
 /**
@@ -25,6 +27,11 @@ async function createProject (req, res) {
   }
 
   await setData('projects/' + projectId, projectObject)
+
+  // send notification using PUSH
+  const title = 'Congrats on creating your project - ' + req.body.name
+  const body = 'We are excited to inform your that your project *' + req.body.name + '* is created successfully on CryptoWharf!'
+  await sendNotification(userData.wallet_address, title, body)
 
   return {
     project_id: projectId
