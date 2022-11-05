@@ -1,10 +1,11 @@
 import './App.css';
+import NavBar from './pages/NavBar.tsx';
 
 function App() {
   return (
     <div className="App">
-      <div className='body'>
-      </div>
+      <NavBar />
+
       <div className="footer">CryptoWharf</div>
     </div>
   );
