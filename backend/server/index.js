@@ -8,7 +8,7 @@ app.use(express.json());
 const functions = require('firebase-functions');
 
 
-const { getSignatureNonce } = require('./auth');
+const { getSignatureNonce, signIn } = require('./auth');
 
 const cors = require('cors');
 // Automatically allow cross-origin requests
@@ -24,6 +24,14 @@ app.post('/api/get_signature_nonce', (req, res) => {
   getSignatureNonce(req, res).then((response) => {
     if (response) {
       res.json({ nonce: response });
+    }
+  });
+});
+
+app.post('/api/sign_in', (req, res) => {
+  signIn(req, res).then((response) => {
+    if (response) {
+      res.json(response);
     }
   });
 });

@@ -2,12 +2,14 @@
 
 const { getData, setData } = require('./firebase');
 const uuid = require('uuid4');
+const Web3 = require('web3');
+const web3 = new Web3();
 
 /**
  * Get signature nonce
- * @param {number} req
- * @param {number} res 
- * @return {number} nonce
+ * @param {req} req
+ * @param {res} res 
+ * @return {newNonce} nonce
  */
 async function getSignatureNonce(req, res) {
   const walletAddress = req.body.wallet_address;
@@ -36,4 +38,60 @@ async function getSignatureNonce(req, res) {
   }
 }
 
-module.exports = { getSignatureNonce };
+/**
+ * Sign in
+ * @param {req} req 
+ * @param {res} res 
+ */
+ async function signIn(req, res) {
+    const walletAddress = req.body.wallet_address;
+    const signature = req.body.signature;
+    if (!walletAddress || !signature) {
+      res.status(400).send('Not valid');
+      return;
+    }
+  
+    const nonceInfo = await getData('wallets/' +
+      walletAddress + '/nonces/sign_in');
+    if (!nonceInfo || nonceInfo.expires_at < Date.now()) {
+      res.status(401).send('Not authorized');
+      return;
+    }
+  
+    // Verify the signature is with information we expected
+    const expectedAddress = web3.eth.accounts.recover('Sign in XXX with wallet: ' +
+      walletAddress + '.\r\n\r\n(--Ignore Info Below--)\r\nNonce: ' +
+      nonceInfo.nonce, signature);
+    if (!expectedAddress || expectedAddress != walletAddress) {
+      res.status(401).send('Not authorized');
+      return;
+    }
+  
+    const walletData = await getData('wallets/' + walletAddress);
+    let userUuid = null;
+    if (!walletData.user_uuid) {
+      userUuid = uuid();
+      await setData('wallets/' + walletAddress, {
+        'user_uuid': userUuid,
+      });
+    } else {
+      userUuid = walletData.user_uuid;
+    }
+    const authToken = uuid();
+    const authTokenExpiresAt = Date.now() + 3600000;
+    await setData('users/' + userUuid, {
+      wallet_address: walletAddress,
+      auth_token: authToken,
+      auth_token_expires_at: authTokenExpiresAt,
+    });
+    await setData('wallets/' + walletAddress + '/nonces/sign_in', {
+      'expires_at': 0,
+    });
+    return {
+      'user_uuid': userUuid,
+      'wallet_address': walletAddress,
+      'auth_token': authToken,
+    };
+  }
+
+module.exports = { getSignatureNonce, signIn };
