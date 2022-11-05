@@ -218,7 +218,7 @@ contract Fundraise is IERC777Recipient {
         IIbAlluo(_alluo_contract).createFlow(
             _plan_id_to_plan[plan_id].payout_address,
             int96(int256(_plan_id_to_plan[plan_id].locked_amount / 7776000)), // Stream over 90 days
-            _plan_id_to_plan[plan_id].locked_amount,
+            IIbAlluo(_alluo_contract).balanceOf(address(this)),
             7776000 // Stream over 90 days
         );
         _plan_id_to_plan[plan_id].locked_amount = 0;
@@ -266,6 +266,11 @@ contract Fundraise is IERC777Recipient {
     // To view balance of an address
     function balanceOf(address account) public view returns (uint256) {
         return _balances[account];
+    }
+
+    // To view balance of an address
+    function alluoBalanceOf(address account) public view returns (int256) {
+        return IIbAlluo(_alluo_contract).getBalance(account);
     }
 
     function tokensReceived(
