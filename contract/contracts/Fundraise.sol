@@ -6,10 +6,7 @@ import "hardhat/console.sol";
 
 import "./interfaces/IIbAlluo.sol";
 import "./interfaces/superfluid/ISuperfluid.sol";
-import "./interfaces/superfluid/ISuperfluidToken.sol";
-import "./interfaces/superfluid/ISuperfluid.sol";
 import "./interfaces/superfluid/IConstantFlowAgreementV1.sol";
-import "./interfaces/superfluid/IInstantDistributionAgreementV1.sol";
 
 // import {CFAv1Library} from "./superfluid/libs/CFAv1Library.sol";
 
