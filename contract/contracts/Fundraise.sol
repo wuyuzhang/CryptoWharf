@@ -11,7 +11,7 @@ import "./interfaces/superfluid/ISuperfluid.sol";
 import "./interfaces/superfluid/IConstantFlowAgreementV1.sol";
 import "./interfaces/superfluid/IInstantDistributionAgreementV1.sol";
 
-import {CFAv1Library} from "./superfluid/libs/CFAv1Library.sol";
+// import {CFAv1Library} from "./superfluid/libs/CFAv1Library.sol";
 
 contract Fundraise {
     struct FundraisePlan {
@@ -55,17 +55,19 @@ contract Fundraise {
 
     address _superfluid_host;
 
-    constructor(address alluo_contract, address superfluid_host) public {
+    // CFAv1Library.InitData cfaV1Lib;
+
+    constructor(address alluo_contract, address superfluid_host) {
         _owner = msg.sender;
         _alluo_contract = alluo_contract;
         _superfluid_host = superfluid_host;
 
         // Initialise key Superfluid parameters
         ISuperfluid host = ISuperfluid(_superfluid_host);
-        cfaV1Lib = CFAv1Library.InitData(
-            host,
-            IConstantFlowAgreementV1(address(host.getAgreementClass(CFA_ID)))
-        );
+        // cfaV1Lib = CFAv1Library.InitData(
+        //     host,
+        //     IConstantFlowAgreementV1(address(host.getAgreementClass(CFA_ID)))
+        // );
 
         // Grant permissions to the ibAlluo contract to create streams on your behalf
         bytes memory data = IIbAlluo(_alluo_contract).formatPermissions();
@@ -189,6 +191,19 @@ contract Fundraise {
             1,
             _plan_id_to_plan[plan_id].locked_amount
         );
+        // cfaV1Lib.host.callAgreement(
+        //     cfaV1Lib.cfa,
+        //     abi.encodeCall(
+        //         cfaV1Lib.cfa.createFlow,
+        //         (
+        //             IIbAlluo(_alluo_contract),
+        //             _plan_id_to_plan[plan_id].payout_address,
+        //             1,
+        //             _plan_id_to_plan[plan_id].locked_amount
+        //         )
+        //     ),
+        //     new bytes(0) // placeholder
+        // );
         // _balances[_plan_id_to_plan[plan_id].payout_address] += _plan_id_to_plan[
         //     plan_id
         // ].locked_amount;
