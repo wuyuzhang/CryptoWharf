@@ -6,7 +6,6 @@ import "hardhat/console.sol";
 
 import "./interfaces/IIbAlluo.sol";
 import "./interfaces/superfluid/ISuperfluid.sol";
-import "./interfaces/superfluid/IConstantFlowAgreementV1.sol";
 
 // import {CFAv1Library} from "./superfluid/libs/CFAv1Library.sol";
 
@@ -32,8 +31,6 @@ contract Fundraise {
 
     bytes32 public constant CFA_ID =
         keccak256("org.superfluid-finance.agreements.ConstantFlowAgreement.v1");
-    // address public constant superfluidHost =
-    //     0x3E14dC1b13c488a8d5D310918780c983bD5982E7;
 
     // The owner of the contract
     address public _owner;
@@ -59,14 +56,8 @@ contract Fundraise {
         _alluo_contract = alluo_contract;
         _superfluid_host = superfluid_host;
 
-        // Initialise key Superfluid parameters
-        ISuperfluid host = ISuperfluid(_superfluid_host);
-        // cfaV1Lib = CFAv1Library.InitData(
-        //     host,
-        //     IConstantFlowAgreementV1(address(host.getAgreementClass(CFA_ID)))
-        // );
-
         // Grant permissions to the ibAlluo contract to create streams on your behalf
+        ISuperfluid host = ISuperfluid(_superfluid_host);
         bytes memory data = IIbAlluo(_alluo_contract).formatPermissions();
         host.callAgreement(host.getAgreementClass(CFA_ID), data, "0x");
     }
@@ -178,32 +169,16 @@ contract Fundraise {
             "Raising hasn't finished yet"
         );
 
-        // Replace with alluo constant flow
         IIbAlluo(_alluo_contract).deposit(
             _default_base_token_contract,
             _plan_id_to_plan[plan_id].locked_amount
         );
         IIbAlluo(_alluo_contract).createFlow(
             _plan_id_to_plan[plan_id].payout_address,
-            1,
-            _plan_id_to_plan[plan_id].locked_amount
+            _plan_id_to_plan[plan_id].locked_amount / 7776000, // Stream over 90 days
+            _plan_id_to_plan[plan_id].locked_amount,
+            7776000 // Stream over 90 days
         );
-        // cfaV1Lib.host.callAgreement(
-        //     cfaV1Lib.cfa,
-        //     abi.encodeCall(
-        //         cfaV1Lib.cfa.createFlow,
-        //         (
-        //             IIbAlluo(_alluo_contract),
-        //             _plan_id_to_plan[plan_id].payout_address,
-        //             1,
-        //             _plan_id_to_plan[plan_id].locked_amount
-        //         )
-        //     ),
-        //     new bytes(0) // placeholder
-        // );
-        // _balances[_plan_id_to_plan[plan_id].payout_address] += _plan_id_to_plan[
-        //     plan_id
-        // ].locked_amount;
         _plan_id_to_plan[plan_id].locked_amount = 0;
     }
 
