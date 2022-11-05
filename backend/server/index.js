@@ -7,6 +7,9 @@ app.use(express.json());
 
 const functions = require('firebase-functions');
 
+
+const { getSignatureNonce } = require('./auth');
+
 const cors = require('cors');
 // Automatically allow cross-origin requests
 app.use(cors({ origin: true }));
@@ -15,6 +18,14 @@ app.use(cors({ origin: true }));
 app.post('/api/fake', (req, res) => {
   console.log(req.body);
   res.json({ message: 'Call received!' });
+});
+
+app.post('/api/get_signature_nonce', (req, res) => {
+  getSignatureNonce(req, res).then((response) => {
+    if (response) {
+      res.json({ nonce: response });
+    }
+  });
 });
 
 app.listen(PORT, () => {
