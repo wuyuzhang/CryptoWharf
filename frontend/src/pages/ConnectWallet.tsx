@@ -5,6 +5,9 @@ import { ethers } from 'ethers';
 import { useCookies } from "react-cookie";
 // @ts-ignore
 import { useUserContext } from '../context/UserContext.tsx';
+// @ts-ignore
+import { WalletSummary } from './WalletSummary.tsx';
+import { Button } from '@mui/material';
 
 const css = `
 .wallet-address {
@@ -107,6 +110,11 @@ function ConnectWallet() {
     const address_to_ens = useRef<Map<string, string>>(new Map())
     const [formatted_addresses, setFormattedAddresses] = useState<Map<string, string>>(new Map())
     const infuraProvider = new ethers.providers.JsonRpcProvider('https://mainnet.infura.io/v3/5b097d2dbc6749448e0f5419c7a3da7d')
+    const [openSummary, setOpenSummary] = useState(false);
+
+    const handleCloseSummary = () => {
+        setOpenSummary(false);
+    };
 
     async function backendRequest(url = '', data = {}) {
         // Default options are marked with *
@@ -271,10 +279,13 @@ function ConnectWallet() {
 
     const handleMouseOverWallet = () => {
         setMouseOverWallet(true);
+        setOpenSummary(true);
     };
 
     const handleMouseOutWallet = () => {
         setMouseOverWallet(false);
+        setOpenSummary(false);
+
     };
 
     return (
@@ -294,15 +305,15 @@ function ConnectWallet() {
                 }
             </div>
 
-            {user && user.wallet_address && mouseOverWallet &&
-                <div className="log-out-tab" onMouseOver={handleMouseOverWallet} onMouseOut={handleMouseOutWallet}>
-                    <img
-                        className='log-out-image'
-                        alt={"Logout"}
-                        src={require("../images/logout.png")}
-                    />
-                    <button className="log-out-button" onClick={() => disconnectWeb3Modal()}>Log Out</button>
+            {user && user.wallet_address &&
+                <div onMouseOver={handleMouseOverWallet} onMouseOut={handleMouseOutWallet}>
+                    <Button onClick={() => disconnectWeb3Modal()}>Log out</Button>
                 </div>
+            }
+
+            {user && user.wallet_address && mouseOverWallet &&
+                <WalletSummary open={openSummary} onClose={handleCloseSummary}
+                />
             }
         </>
     )
