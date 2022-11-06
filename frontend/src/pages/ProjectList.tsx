@@ -5,13 +5,19 @@ import { useUserContext } from "../context/UserContext.tsx";
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Toolbar from '@mui/material/Toolbar';
-import { Typography, OutlinedInput, InputAdornment, Button, TextField } from '@mui/material';
+import { Typography, OutlinedInput, InputAdornment, Button, TextField, Icon, SvgIcon } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { ethers } from 'ethers';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import { Player } from '@livepeer/react';
+import GrassIcon from '@mui/icons-material/Grass';
+import Alert from '@mui/material/Alert';
+import CloseIcon from '@mui/icons-material/Close';
+import IconButton from '@mui/material/IconButton';
+import Collapse from '@mui/material/Collapse';
+
 
 const Web3 = require("web3");
 const qs = require('qs');
@@ -182,7 +188,7 @@ export default function ProjectList() {
                     debug={true} // to aid with debugging, remove in production
                 />
             }
-            {userVerified &&
+            {true &&
                 <Grid container rowSpacing={5} columnSpacing={2} sx={{ width: '100%', pl: 7, pt: 7 }}>
                     <Grid item xs={12} container justifyContent="flex-start">
                         <Typography sx={{ pl: 1, fontSize: '22px', fontWeight: 500, }}>
@@ -240,11 +246,59 @@ function ProjectCard(props: {
     project: any,
     investInProject: Function
 }) {
+    const { user } = useUserContext();
+    const [showSuccess, setShowSuccess] = useState(false);
+
     const [investInput, setInvestInput] = useState<InvestProject>({
         projectId: props.project_id,
         investAmount: 10000000,
         investCoin: 'USDC',
     });
+
+    const svgIcon = (
+        <Icon>
+            <img alt="share"
+                src={require("../images/share.svg")}
+            />
+        </Icon>
+    );
+
+    async function backendRequest(url = '', data = {}) {
+        // Default options are marked with *
+        const response = await fetch(url, {
+            method: 'POST', // *GET, POST, PUT, DELETE, etc.
+            mode: 'same-origin', // no-cors, *cors, same-origin
+            cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+            credentials: 'same-origin', // include, *same-origin, omit
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            redirect: 'follow', // manual, *follow, error
+            referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+            body: JSON.stringify(data) // body data type must match "Content-Type" header
+        });
+        if (response.status === 200) {
+            return response.json(); // parses JSON response into native JavaScript objects
+        } else {
+            return  // return null for failed requests
+        }
+    }
+
+    async function authedBackendRequest(url = '', data = {}) {
+        data['user_uuid'] = user.user_uuid
+        data['auth_token'] = user.auth_token
+        return backendRequest(url, data)
+    }
+
+    async function onClickShare() {
+        authedBackendRequest('api/create_lens_post', {})
+            .then(
+                res => {
+                    console.log(res.projectObjects);
+                    setShowSuccess(true);
+                })
+    }
+
     return (
         <Grid item xs={6} container justifyContent="flex-start">
             <Box
@@ -286,7 +340,6 @@ function ProjectCard(props: {
                         backgroundColor: '#fcfcfb',
                         m: 1,
                         ml: 3,
-                        border: '1px dashed grey',
                         mt: 4,
                         alignItems: '',
 
@@ -309,7 +362,7 @@ function ProjectCard(props: {
                         pl: 3,
                         mt: 3,
                     }} >
-                    Invest*
+                    Invest *
                 </Typography>
                 <Box
                     sx={{
@@ -322,7 +375,7 @@ function ProjectCard(props: {
                     <TextField
                         placeholder='Enter Amount'
                         sx={{
-
+                            width: '50%',
                             justifyContent: "space-between",
                         }}
                         value={investInput.investAmount / 1000000.0}
@@ -333,9 +386,9 @@ function ProjectCard(props: {
                         }} />
                     <Select
                         sx={{
-                            width: '35%',
+                            width: '49%',
                             color: '#6634F3',
-                            ml: 1,
+                            ml: '1%',
                         }}
                         value={investInput.investCoin}
                         onChange={evt => {
@@ -354,9 +407,8 @@ function ProjectCard(props: {
                 <Button
                     variant="contained"
                     sx={{
-                        width: '90%',
-                        ml: 3,
-                        mt: 4,
+                        width: '87%',
+                        mt: 3,
                         borderRadius: 2,
                         backgroundColor: '#6634F3',
                     }}
@@ -367,6 +419,33 @@ function ProjectCard(props: {
                 >
                     Confirm
                 </Button>
+                <Button variant="outlined" sx={{ mt: 3 }}
+                    startIcon={<GrassIcon sx={{ color: '#0E8867', fontSize: 40 }} />}
+                    onClick={() => {
+                        onClickShare();
+                    }}
+                >
+                    share
+                </Button>
+                <Collapse in={showSuccess}>
+                    <Alert
+                        action={
+                            <IconButton
+                                aria-label="close"
+                                color="inherit"
+                                size="small"
+                                onClick={() => {
+                                    setShowSuccess(false);
+                                }}
+                            >
+                                <CloseIcon fontSize="inherit" />
+                            </IconButton>
+                        }
+                        sx={{ mt: 2, mb: 1 }}
+                    >
+                        Thanking you for sharing your investment on Lens!
+                    </Alert>
+                </Collapse>
             </Box>
         </Grid>
     );
