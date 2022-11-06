@@ -85,7 +85,6 @@ async function investInProject(req, res) {
 
   const project_id = req.body.project_id
   const amount = req.body.amount
-  const token_contract = req.body.token_contract
 
   // get project object
   const projectObject = await getData('projects/' + project_id)
@@ -103,10 +102,11 @@ async function investInProject(req, res) {
   // Call NFT storage and mint NFT
 
   // Send push if raise is reaching a milestone
-  // TODO: check the milestone
-  const title = 'Your project - ' + req.body.name + ' has raised 100% of your target'
-  const body = 'We are excited to inform your that your project *' + req.body.name + '* has raised 100% of your target!'
-  await sendNotification(userData.wallet_address, title, body)
+  if (plan_status[3] + amount >= plan_status[0]) {
+    const title = 'Your project - ' + projectObject.name + ' has raised 100% of your target'
+    const body = 'We are excited to inform your that your project *' + projectObject.name + '* has raised 100% of your target!'
+    await sendNotification(userData.wallet_address, title, body)
+  }
 
   return {
     'success': true,
