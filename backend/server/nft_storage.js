@@ -1,14 +1,13 @@
 // Import the NFTStorage class and File constructor from the 'nft.storage' package
-import { NFTStorage, File } from 'nft.storage'
-
+const { NFTStorage, File } = require('nft.storage');
 // The 'mime' npm package helps us set the correct file type on our File objects
-import mime from 'mime'
+const { mime } = require('mime');
 
 // The 'fs' builtin module on Node.js provides access to the file system
-import fs from 'fs'
-
+const { fs } = require('fs');
 // The 'path' module provides helpers for manipulating filesystem paths
-import path from 'path'
+const { path } = require('path');
+
 
 // Paste your NFT.Storage API key into the quotes:
 const NFT_STORAGE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweGVmQjY0ODI0M0ZEMDM1NjMyNzE0NzA3MWY4ZDAyRDREZmNiY0ZhOUQiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTY2NzcxODUzNzAzMiwibmFtZSI6ImNyeXB0b3doYXJmIn0.AiGC7N8FFV-X7vmwQGm55Riv-TAfsoV5wwuVoms-bJo'
