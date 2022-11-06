@@ -279,13 +279,10 @@ function ConnectWallet() {
 
     const handleMouseOverWallet = () => {
         setMouseOverWallet(true);
-        setOpenSummary(true);
     };
 
     const handleMouseOutWallet = () => {
         setMouseOverWallet(false);
-        setOpenSummary(false);
-
     };
 
     return (
@@ -300,7 +297,7 @@ function ConnectWallet() {
                     src={require("../images/wallet.png")}
                 />
                 {user && user.wallet_address ?
-                    formatted_addresses.get(user.wallet_address) :
+                    <p onClick={() => setOpenSummary(true)} >{formatted_addresses.get(user.wallet_address)}</p> :
                     <p onClick={() => connectWeb3Modal()} className='connect-wallet'>Connect Wallet</p>
                 }
             </div>
@@ -311,7 +308,7 @@ function ConnectWallet() {
                 </div>
             }
 
-            {user && user.wallet_address && mouseOverWallet &&
+            {user && user.wallet_address &&
                 <WalletSummary open={openSummary} onClose={handleCloseSummary}
                 />
             }
