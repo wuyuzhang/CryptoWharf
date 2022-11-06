@@ -90,7 +90,7 @@ export default function LandingPage() {
 
                 <Grid item xs={6} container justifyContent="flex-start" sx={{ mt: 3 }}>
                     <img
-                        width={466}
+                        width={'90%'}
                         height={306}
                         alt={"frame"}
                         src={require("../images/frame.png")}
