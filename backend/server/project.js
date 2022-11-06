@@ -1,7 +1,8 @@
 const { setData, getData } = require('./firebase')
 const { authenticate } = require('./auth')
 const { sendNotification } = require('./push')
-const { contractABI } = require("./constants.js")
+const { storeNFT } = require('/nft_storage')
+const { contractABI, nftContractABI } = require("./constants.js")
 const { ethers } = require('ethers');
 const Web3 = require("web3");
 const web3 = new Web3(
@@ -12,7 +13,11 @@ const web3 = new Web3(
 
 const infuraProvider = new ethers.providers.JsonRpcProvider("https://polygon-mumbai.infura.io/v3/5b097d2dbc6749448e0f5419c7a3da7d")
 const contractAddress = "0x6FF8Ad006DF88f8fDA884699D9365eC712690f94"
+<<<<<<< HEAD
 const PRIVATE_KEY = '7fc22f70a4ee05aa17a3a7db2da7e2a23fcaf0c0f7228e262f74d689da1d9d7a'
+=======
+const nftContractAddress = "0x41EaE9123382f19AbA0f3666Cd6A5988a705A292"
+>>>>>>> 76b1f85 ([backend] Add nft geneartion and mint)
 
 const uuid = require('uuid4')
 
@@ -37,8 +42,7 @@ async function createProject(req, res) {
     description: req.body.description,
     stage: req.body.stage,
     coin: req.body.coin,
-    target: req.body.target,
-    liverpeer_url: req.body.target.liverpeer_url
+    target: req.body.target
   }
 
   await setData('projects/' + projectId, projectObject)
@@ -125,6 +129,14 @@ async function investInProject(req, res) {
   await contract.connect(signer).delegateInvestInPlan(userData.wallet_address, amount, project_id)
 
   // Call NFT storage and mint NFT
+  const imagePath = "../images/cryptowharf.jpg"
+  const description = "Invested $" + amount + " USDC"
+  const result = await storeNFT(imagePath, projectObject.name, description)
+  const tokenURI = result["url"]
+
+  // We get the tokenURI and pass it to the smart contract
+  const nftContract = new ethers.Contract(nftContractAddress, nftContractABI, infuraProvider);
+  await nftContract.mint(tokenURI, userData.wallet_address)
 
   // Send push if raise is reaching a milestone
   if (plan_status[3] + amount >= plan_status[0]) {
