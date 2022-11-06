@@ -248,6 +248,7 @@ function ProjectCard(props: {
 }) {
     const { user } = useUserContext();
     const [showSuccess, setShowSuccess] = useState(false);
+    const [showInvestSuccess, setShowInvestSuccess] = useState(false);
 
     const [investInput, setInvestInput] = useState<InvestProject>({
         projectId: props.project_id,
@@ -414,11 +415,31 @@ function ProjectCard(props: {
                     }}
                     onClick={() => {
                         console.log(JSON.stringify(investInput));
+                        setShowInvestSuccess(true);
                         props.investInProject(investInput.projectId, investInput.investAmount, investInput.investCoin)
                     }}
                 >
                     Confirm
                 </Button>
+                <Collapse in={showInvestSuccess}>
+                    <Alert
+                        action={
+                            <IconButton
+                                aria-label="close"
+                                color="inherit"
+                                size="small"
+                                onClick={() => {
+                                    setShowInvestSuccess(false);
+                                }}
+                            >
+                                <CloseIcon fontSize="inherit" />
+                            </IconButton>
+                        }
+                        sx={{ mt: 2, mb: 1 }}
+                    >
+                        Thanking you for investing! We have mint a NFT for you.
+                    </Alert>
+                </Collapse>
                 <Button variant="outlined" sx={{ mt: 3 }}
                     startIcon={<GrassIcon sx={{ color: '#0E8867', fontSize: 40 }} />}
                     onClick={() => {
