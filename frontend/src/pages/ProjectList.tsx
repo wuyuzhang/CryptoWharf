@@ -33,7 +33,17 @@ const ERC20_ABI = [
     "event Approval(address indexed owner, address indexed spender, uint256 value)",
 ]
 const CONTRACT_ABI = [
+    "function createPlan(string plan_id, string project_id, string project_name, address payout_address, uint256 target_amount, uint256 minimum_investment_amount, uint256 expiration_time) public",
+    "function viewPlanStatus(string plan_id) public view returns(uint256[5])",
+    "function investInPlan(uint256 amount, string plan_id)",
     "function delegateInvestInPlan(address investor, uint256 amount, string plan_id)",
+    "function unlockPlan(string memory plan_id) public",
+    "function refundPlan(string memory plan_id) public",
+    "function withdraw(uint256 amount) external",
+    "function depositTokens(uint256 amount) external",
+    "function balanceOf(address account) public view returns (uint256)",
+    "function alluoBalanceOf(address account) public view returns (int256)",
+    "function tokensReceived(address operator, address from, address to, uint256 amount, bytes userData, bytes operatorData) external",
 ]
 
 const CONTRACT_ADDRESS = "0x6FF8Ad006DF88f8fDA884699D9365eC712690f94"
@@ -102,7 +112,6 @@ export default function ProjectList() {
         const ZERO_EX_ADDRESS = '0xf471d32cb40837bf24529fcf17418fc1a4807626';
         const USDC_ADDRESS = '0xe097d6b3100777dc31b34dc2c58fb524c2e76921';
         const MATIC_ADDRESS = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
-        const WETH_ADDRESS = '0xa6fa4fb5f76172d178d61b04b0ecd319c5d1c0aa';
 
         // Selling USDC for LINK.
         const params = {
@@ -114,8 +123,8 @@ export default function ProjectList() {
 
         // Set up a LINK allowance on the 0x contract if needed.
         const usdc = new ethers.Contract(USDC_ADDRESS, ERC20_ABI, infuraProvider);
-        const tx = await usdc.connect(signer).approve(ZERO_EX_ADDRESS, params.sellAmount)
-        await tx.wait()
+        const approve_tx = await usdc.connect(signer).approve(ZERO_EX_ADDRESS, params.sellAmount)
+        await approve_tx.wait()
         const quote_response = await fetch(
             `https://mumbai.api.0x.org/swap/v1/quote?${qs.stringify(params)}`
         )
@@ -132,10 +141,13 @@ export default function ProjectList() {
         await swap_tx.wait()
 
         // Grant our contract USDC allowance for the converted amount
-        const fundraiseAllowance = await usdc.connect(signer).approve(CONTRACT_ADDRESS, amount)
-        await fundraiseAllowance.wait()
+        const fundraise = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, infuraProvider);
+        const fundraise_approve_tx = await usdc.connect(signer).approve(CONTRACT_ADDRESS, amount)
+        await fundraise_approve_tx.wait()
 
         // Call our contract to deposit amount
+        const deposit_tx = await fundraise.connect(signer).depositTokens(amount)
+        await deposit_tx.wait()
 
         // Call our contract to invest
         authedBackendRequest('api/invest_in_project', {
@@ -145,7 +157,6 @@ export default function ProjectList() {
 
         // On success popup share window
         // });
-
 
     }
 
@@ -172,47 +183,49 @@ export default function ProjectList() {
                     debug={true} // to aid with debugging, remove in production
                 />
             }
-            <Grid container rowSpacing={5} columnSpacing={2} sx={{ width: '100%', pl: 7, pt: 7 }}>
-                <Grid item xs={12} container justifyContent="flex-start">
-                    <Typography sx={{ pl: 1, fontSize: '22px', fontWeight: 500, }}>
-                        Projects Review
-                    </Typography>
+            {userVerified &&
+                <Grid container rowSpacing={5} columnSpacing={2} sx={{ width: '100%', pl: 7, pt: 7 }}>
+                    <Grid item xs={12} container justifyContent="flex-start">
+                        <Typography sx={{ pl: 1, fontSize: '22px', fontWeight: 500, }}>
+                            Projects Review
+                        </Typography>
+                    </Grid>
+                    <Grid item xs={6} container justifyContent="flex-start">
+                        <OutlinedInput
+                            label=""
+                            size="small"
+                            placeholder="  Search Companies"
+                            sx={{ pl: 1, borderRadius: 4, width: '60%' }}
+                            startAdornment={
+                                <InputAdornment position="end">
+                                    <SearchIcon />
+                                </InputAdornment>
+                            }
+                        />
+                    </Grid>
+                    <Grid item xs={6} container justifyContent="flex-start" alignItems={"center"}>
+                        <Typography sx={{ pl: 1, fontSize: '16px', fontWeight: 500, }}>
+                            Filters:
+                        </Typography>
+                        <OutlinedInput
+                            label=""
+                            value=" Category (1)"
+                            size="small"
+                            sx={{ ml: 2, pl: 1, borderRadius: 4, width: '40%' }}
+                            startAdornment={
+                                <InputAdornment position="end">
+                                    <FilterListIcon />
+                                </InputAdornment>
+                            }
+                        />
+                    </Grid>
+                    {
+                        Object.keys(projects).map(key =>
+                            <ProjectCard key={key} project={projects[key]} />
+                        )
+                    }
                 </Grid>
-                <Grid item xs={6} container justifyContent="flex-start">
-                    <OutlinedInput
-                        label=""
-                        size="small"
-                        placeholder="  Search Companies"
-                        sx={{ pl: 1, borderRadius: 4, width: '60%' }}
-                        startAdornment={
-                            <InputAdornment position="end">
-                                <SearchIcon />
-                            </InputAdornment>
-                        }
-                    />
-                </Grid>
-                <Grid item xs={6} container justifyContent="flex-start" alignItems={"center"}>
-                    <Typography sx={{ pl: 1, fontSize: '16px', fontWeight: 500, }}>
-                        Filters:
-                    </Typography>
-                    <OutlinedInput
-                        label=""
-                        value=" Category (1)"
-                        size="small"
-                        sx={{ ml: 2, pl: 1, borderRadius: 4, width: '40%' }}
-                        startAdornment={
-                            <InputAdornment position="end">
-                                <FilterListIcon />
-                            </InputAdornment>
-                        }
-                    />
-                </Grid>
-                {
-                    Object.keys(projects).map(key =>
-                        <ProjectCard key={key} project={projects[key]} />
-                    )
-                }
-            </Grid>
+            }
         </>
     )
 }
