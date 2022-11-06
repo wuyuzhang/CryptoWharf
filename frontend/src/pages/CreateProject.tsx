@@ -76,10 +76,15 @@ function Form() {
             "target": 1
         })
 
+        await backendRequest("/api/create_profile", {
+            "user_uuid": user.user_uuid,
+            "auth_token": user.auth_token,
+            "email": "cryptowharfsf@gmail.com",
+            "telegram": "YZ233333"
+        })
+
         setShowSuccess(true);
         
-        // call backend
-        // formInput.projectName
     };
     const onImageChange = (event) => {
         if (event.target.files && event.target.files[0]) {
