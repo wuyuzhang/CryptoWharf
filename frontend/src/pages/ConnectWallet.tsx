@@ -146,6 +146,7 @@ function ConnectWallet() {
     const connectWallet = async () => {
         const wallet = await web3Modal.connect()
         provider.current = new ethers.providers.Web3Provider(wallet)
+        setSigner(provider.current.getSigner())
 
         const signer = provider.current!.getSigner()
         wallet_address.current = await signer.getAddress()
@@ -226,6 +227,7 @@ function ConnectWallet() {
         web3Modal.clearCachedProvider()
 
         provider.current = null
+        setSigner(null)
         wallet_address.current = ""
         user_uuid.current = ""
         auth_token.current = ""

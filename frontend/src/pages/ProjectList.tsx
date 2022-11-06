@@ -12,13 +12,10 @@ import { ethers } from 'ethers';
 
 const Web3 = require("web3");
 const qs = require('qs');
-const BigNumber = require('bignumber.js');
-// const { createAlchemyWeb3 } = require("@alch/alchemy-web3");
-// const web3 = createAlchemyWeb3("https://eth-mainnet.g.alchemy.com/v2/0XiCjY60o9aK3ngjMoJFaOuWl_97JRzL");
-const infuraProvider = new ethers.providers.JsonRpcProvider("https://mainnet.infura.io/v3/5b097d2dbc6749448e0f5419c7a3da7d")
+const infuraProvider = new ethers.providers.JsonRpcProvider("https://polygon-mumbai.infura.io/v3/5b097d2dbc6749448e0f5419c7a3da7d")
 const web3 = new Web3(
     new Web3.providers.HttpProvider(
-        `https://mainnet.infura.io/v3/5b097d2dbc6749448e0f5419c7a3da7d`
+        `https://polygon-mumbai.infura.io/v3/5b097d2dbc6749448e0f5419c7a3da7d`
     )
 );
 const ERC20_ABI = [
@@ -30,13 +27,17 @@ const ERC20_ABI = [
     "function transfer(address _to, uint256 _value) public returns(bool success)",
     "function transferFrom(address _from, address _to, uint256 _value) public returns(bool success)",
     "function approve(address _spender, uint256 _value) public returns(bool success)",
-    "function allowance(address _owner, address _spender) public view returns(uint256 remaining)"
+    "function allowance(address _owner, address _spender) public view returns(uint256 remaining)",
+    "event Approval(address indexed owner, address indexed spender, uint256 value)",
+]
+const CONTRACT_ABI = [
+    "function delegateInvestInPlan(address investor, uint256 amount, string plan_id)",
 ]
 
 const CONTRACT_ADDRESS = "0x6FF8Ad006DF88f8fDA884699D9365eC712690f94"
 
 export default function ProjectList() {
-    const { user, provider } = useUserContext();
+    const { user, signer } = useUserContext();
     const [userVerified, setUserVerified] = useState(true)
     const [projects, setProjects] = useState<any[]>([])
     const firstUpdate = useRef(true);
@@ -95,42 +96,53 @@ export default function ProjectList() {
     }
 
     async function investInProject(project_id, amount, token_address) {
-        // swap token to USDC
-        // https://docs.0x.org/0x-api-swap/guides/swap-tokens-with-0x-api#sell-100-dai-for-eth
-        const ZERO_EX_ADDRESS = '0xdef1c0ded9bec7f1a1670819833240f027b25eff';
-        const DAI_ADDRESS = '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063';
-        const USDC_ADDRESS = '0x2791bca1f2de4661ed88a30c99a7a9449aa84174';
+        // swap LINK to USDC
+        const ZERO_EX_ADDRESS = '0xf471d32cb40837bf24529fcf17418fc1a4807626';
+        const USDC_ADDRESS = '0xe097d6b3100777dc31b34dc2c58fb524c2e76921';
+        const MATIC_ADDRESS = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
+        const WETH_ADDRESS = '0xa6fa4fb5f76172d178d61b04b0ecd319c5d1c0aa';
 
-        // Selling 100 DAI for ETH.
+        // Selling USDC for LINK.
         const params = {
-            sellToken: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-            buyToken: 'DAI',
-            // Note that the DAI token uses 18 decimal places, so `sellAmount` is `100 * 10^18`.    
-            sellAmount: "10000",
+            sellToken: USDC_ADDRESS,
+            buyToken: MATIC_ADDRESS,
+            sellAmount: amount,
             takerAddress: user.wallet_address,
         }
 
-        // Set up a DAI allowance on the 0x contract if needed.
-        // const dai = new web3.eth.Contract(ERC20_ABI, USDC_ADDRESS);
-        const dai = new ethers.Contract(USDC_ADDRESS, ERC20_ABI, infuraProvider);
-        await dai.connect(provider.getSigner()).approve(ZERO_EX_ADDRESS, params.sellAmount)
+        // Set up a LINK allowance on the 0x contract if needed.
+        const usdc = new ethers.Contract(USDC_ADDRESS, ERC20_ABI, infuraProvider);
+        const tx = await usdc.connect(signer).approve(ZERO_EX_ADDRESS, params.sellAmount)
+        await tx.wait()
+        const quote_response = await fetch(
+            `https://mumbai.api.0x.org/swap/v1/quote?${qs.stringify(params)}`
+        )
+        const res_json = await quote_response.json()
+        const signedTx = await web3.eth.accounts.signTransaction(res_json, "7fc22f70a4ee05aa17a3a7db2da7e2a23fcaf0c0f7228e262f74d689da1d9d7a")
 
-        // Fetch the swap quote.
-        const response = await fetch(
-            `https://api.0x.org/swap/v1/quote?${qs.stringify(params)}`
-        );
-
-        console.log(response.json());
-
-        // Perform the swap.
-
-        // await web3.eth.sendTransaction(await response.json());
+        // Sending the transaction to the network
+        const swap_tx = await web3.eth
+            .sendSignedTransaction(signedTx.rawTransaction)
+            .once("transactionHash", (txhash) => {
+                console.log(`Mining transaction ...`);
+                console.log(`https://mumbai.polygonscan.com/tx/${txhash}`);
+            });
+        await swap_tx.wait()
 
         // Grant our contract USDC allowance for the converted amount
+        const fundraiseAllowance = await usdc.connect(signer).approve(CONTRACT_ADDRESS, amount)
+        await fundraiseAllowance.wait()
 
         // Call our contract to invest
+        authedBackendRequest('api/invest_in_project', {
+            'project_id': project_id,
+            'amount': amount,
+        })
 
         // On success popup share window
+        // });
+
+
     }
 
     useLayoutEffect(() => {
@@ -145,7 +157,7 @@ export default function ProjectList() {
 
     return (
         <>
-            <button onClick={() => investInProject('something', 10000, '')}>swap</button>
+            <button onClick={() => investInProject('something', 100000, '')}>swap</button>
             {!userVerified &&
                 <WorldIDWidget
                     actionId="wid_staging_438cadb410ecfe8e7851b4ad4e58b6d9" // obtain this from developer.worldcoin.org
