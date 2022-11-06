@@ -5,10 +5,12 @@ import { useUserContext } from "../context/UserContext.tsx";
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Toolbar from '@mui/material/Toolbar';
-import { Typography, OutlinedInput, InputAdornment } from '@mui/material';
+import { Typography, OutlinedInput, InputAdornment, Button, TextField } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { ethers } from 'ethers';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
 
 const Web3 = require("web3");
 const qs = require('qs');
@@ -213,9 +215,20 @@ export default function ProjectList() {
     )
 }
 
+type InvestProject = {
+    projectId: string
+    investAmount: number
+    investCoin: string
+}
+
 function ProjectCard(props: {
     project: any
 }) {
+    const [investInput, setInvestInput] = useState<InvestProject>({
+        projectId: '',
+        investAmount: 0,
+        investCoin: 'ETH',
+    });
     return (
         <Grid item xs={6} container justifyContent="flex-start">
             <Box
@@ -225,6 +238,7 @@ function ProjectCard(props: {
                     backgroundColor: '#fcfcfb',
                     m: 0,
                     mt: 4,
+                    pb: 4,
                     alignItems: 'center',
                     borderRadius: 2,
                 }}
@@ -248,6 +262,89 @@ function ProjectCard(props: {
                     }} >
                     {props.project.description}
                 </Typography>
+
+                <Box
+                    sx={{
+                        width: '90%',
+                        minHeight: 150,
+                        backgroundColor: '#fcfcfb',
+                        m: 1,
+                        ml: 3,
+                        border: '1px dashed grey',
+                        mt: 4,
+                        alignItems: '',
+
+                    }}
+                >
+
+                </Box>
+
+                <Typography className="item-body" align='left'
+                    sx={{
+                        color: '#515151',
+                        fontFamily: 'Montserrat',
+                        fontSize: '16px',
+                        fontWeight: 500,
+                        pl: 3,
+                        mt: 3,
+                    }} >
+                    Invest*
+                </Typography>
+                <Box
+                    sx={{
+                        width: '90%',
+                        m: 1,
+                        ml: 3,
+                        justifyContent: "space-between",
+                    }}
+                >
+                    <TextField
+                        placeholder='Enter Amount'
+                        sx={{
+
+                            justifyContent: "space-between",
+                        }}
+                        value={investInput.investAmount}
+                        inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                        size="small"
+                        onChange={evt => {
+                            setInvestInput({ ...investInput, investAmount: parseInt(evt.target.value, 0) })
+                        }} />
+                    <Select
+                        sx={{
+                            width: '35%',
+                            color: '#6634F3',
+                            ml: 1,
+                        }}
+                        value={investInput.investCoin}
+                        onChange={evt => {
+                            setInvestInput({ ...investInput, investCoin: evt.target.value })
+                        }}
+                        displayEmpty
+                        inputProps={{ 'aria-label': 'Without label' }}
+                        size="small"
+                    >
+                        <MenuItem value={'BTC'}>BTC</MenuItem>
+                        <MenuItem value={'ETH'}>ETH</MenuItem>
+                        <MenuItem value={'DAI'}>DAI</MenuItem>
+                        <MenuItem value={'USDC'}>USDC</MenuItem>
+                    </Select>
+                </Box>
+                <Button
+                    variant="contained"
+                    sx={{
+                        width: '90%',
+                        ml: 3,
+                        mt: 4,
+                        borderRadius: 2,
+                        backgroundColor: '#6634F3',
+                    }}
+                    onClick={() => {
+                        console.log(JSON.stringify(investInput));
+                    }}
+                >
+                    Confirm
+                </Button>
             </Box>
         </Grid>
     );
