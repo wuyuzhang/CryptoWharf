@@ -188,7 +188,7 @@ export default function ProjectList() {
                     debug={true} // to aid with debugging, remove in production
                 />
             }
-            {true &&
+            {userVerified &&
                 <Grid container rowSpacing={5} columnSpacing={2} sx={{ width: '100%', pl: 7, pt: 7 }}>
                     <Grid item xs={12} container justifyContent="flex-start">
                         <Typography sx={{ pl: 1, fontSize: '22px', fontWeight: 500, }}>
