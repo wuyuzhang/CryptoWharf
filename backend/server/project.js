@@ -23,7 +23,9 @@ async function createProject(req, res) {
     category: req.body.category,
     logo_url: req.body.logo_url,
     description: req.body.description,
-    stage: req.body.stage
+    stage: req.body.stage,
+    coin: req.body.coin,
+    target: req.body.target
   }
 
   await setData('projects/' + projectId, projectObject)
