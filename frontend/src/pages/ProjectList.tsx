@@ -34,6 +34,14 @@ export default function ProjectList() {
         return backendRequest(url, data)
     }
 
+    async function listProjects(url = '', data = {}) {
+        const projects = await backendRequest("/api/list_projects", {
+            "user_uuid": user.user_uuid,
+            "auth_token": user.auth_token
+        })
+        return projects
+    }
+
     async function checkIfUserVerified() {
         authedBackendRequest('api/check_user_unique_human', {}).then(res => setUserVerified(res.verified))
     }
