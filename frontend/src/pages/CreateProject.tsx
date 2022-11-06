@@ -76,7 +76,7 @@ function Form() {
             "description": formInput.whyInvest,
             "stage": formInput.stage,
             "coin": formInput.targetCoin,
-            "target": 1
+            "target": 8000000
         })
 
         await backendRequest("/api/create_profile", {
@@ -240,7 +240,7 @@ function Form() {
                             >
                                 <MenuItem value={'BTC'}>BTC</MenuItem>
                                 <MenuItem value={'ETH'}>ETH</MenuItem>
-                                <MenuItem value={'DAI'}>DAI</MenuItem>
+                                <MenuItem value={'MATIC'}>MATIC</MenuItem>
                                 <MenuItem value={'USDC'}>USDC</MenuItem>
 
                             </Select>
@@ -395,9 +395,6 @@ export default function CreateProject() {
             >
                 <Box sx={{ color: 'white', fontSize: 24, fontWeight: 'medium', pt: 8 }}>
                     Start your fundraising in 2 minutes
-                </Box>
-                <Box sx={{ color: 'white', fontSize: 12, fontWeight: 'medium', pt: 2 }}>
-                    Wallet connected:
                 </Box>
 
                 <Box
