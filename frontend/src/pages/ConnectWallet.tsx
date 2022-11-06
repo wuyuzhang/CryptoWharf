@@ -102,7 +102,7 @@ function ConnectWallet() {
     const provider = useRef<ethers.providers.Web3Provider | null>(null)
     const pending_signin = useRef(false)
     const [mouseOverWallet, setMouseOverWallet] = useState(false)
-    const { user, setUser } = useUserContext()
+    const { user, setUser, signer, setSigner } = useUserContext()
     const [cookies, setCookie, removeCookie] = useCookies(['wallet_address', 'user_uuid', 'auth_token']);
 
     async function backendRequest(url = '', data = {}) {

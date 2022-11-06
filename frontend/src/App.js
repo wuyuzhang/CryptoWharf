@@ -10,11 +10,12 @@ import { useState } from "react";
 function App() {
   const [page, setPage] = useState('features');
   const [user, setUser] = useState(null);
+  const [signer, setSigner] = useState(null);
 
   return (
     <BrowserRouter>
       <div className="App">
-        <UserContext.Provider value={{ page, setPage, user, setUser }}>
+        <UserContext.Provider value={{ page, setPage, user, setUser, signer, setSigner }}>
           <NavBar />
           <Routes>
             <Route path='/' element={<LandingPage />} />

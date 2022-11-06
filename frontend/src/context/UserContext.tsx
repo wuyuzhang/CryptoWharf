@@ -5,6 +5,8 @@ export type UserContent = {
     setPage: (page: string) => void
     user: any
     setUser: (user: any) => void
+    signer: any
+    setSigner: (user: any) => void
 }
 
 // default value
@@ -13,6 +15,8 @@ export const UserContext = createContext<UserContent>({
     setPage: () => { },
     user: null,
     setUser: () => { },
+    signer: null,
+    setSigner: () => { },
 });
 
 export const useUserContext = () => useContext(UserContext)
