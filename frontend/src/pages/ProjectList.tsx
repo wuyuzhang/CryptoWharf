@@ -135,6 +135,8 @@ export default function ProjectList() {
         const fundraiseAllowance = await usdc.connect(signer).approve(CONTRACT_ADDRESS, amount)
         await fundraiseAllowance.wait()
 
+        // Call our contract to deposit amount
+
         // Call our contract to invest
         authedBackendRequest('api/invest_in_project', {
             'project_id': project_id,
