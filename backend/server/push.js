@@ -28,7 +28,6 @@ const sendNotification = async (recipientAddress, title, body, type) => {
     })
 
     // apiResponse?.status === 204, if sent successfully!
-    console.log('API repsonse: ', apiResponse)
   } catch (err) {
     console.error('Error: ', err)
   }
@@ -51,7 +50,7 @@ async function receivePushNotification(req, res) {
   if (!data) {
     console.log("Invalid data received, hence skipping")
     res.status(200).json({
-        "message": 'Invalid data received'
+      "message": 'Invalid data received'
     });
     return;
   }
@@ -63,12 +62,10 @@ async function receivePushNotification(req, res) {
   } catch (err) {
     console.log('payload sender validation failed, hence skipping\n', payload);
     res.status(200).json({
-        "message": 'Your message could not validated'
+      "message": 'Your message could not validated'
     });
     return;
   }
-
-  console.log('Received message from sns', payload);
 }
 
 module.exports = { sendNotification, receivePushNotification }

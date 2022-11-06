@@ -3,9 +3,16 @@ const { authenticate } = require('./auth')
 const { sendNotification } = require('./push')
 const { contractABI } = require("./constants.js")
 const { ethers } = require('ethers');
+const Web3 = require("web3");
+const web3 = new Web3(
+  new Web3.providers.HttpProvider(
+    `https://polygon-mumbai.infura.io/v3/5b097d2dbc6749448e0f5419c7a3da7d`
+  )
+);
 
 const infuraProvider = new ethers.providers.JsonRpcProvider("https://polygon-mumbai.infura.io/v3/5b097d2dbc6749448e0f5419c7a3da7d")
 const contractAddress = "0x6FF8Ad006DF88f8fDA884699D9365eC712690f94"
+const PRIVATE_KEY = '7fc22f70a4ee05aa17a3a7db2da7e2a23fcaf0c0f7228e262f74d689da1d9d7a'
 
 const uuid = require('uuid4')
 
@@ -36,6 +43,21 @@ async function createProject(req, res) {
 
   await setData('projects/' + projectId, projectObject)
 
+  const contract = new ethers.Contract(contractAddress, contractABI, infuraProvider);
+  const signer = new ethers.Wallet(PRIVATE_KEY, infuraProvider);
+  const planId = uuid(4)
+
+  // Call smartcontract to get progress and other info
+  await contract.connect(signer).createPlan(
+    planId,
+    projectId,
+    projectObject.name,
+    userData.wallet_address,
+    projectObject.target,
+    0,
+    1667918345,
+  )
+
   // PUSH notification
   // send message to founder
   const founder_title = 'Congrats on creating your project - ' + req.body.name
@@ -48,7 +70,8 @@ async function createProject(req, res) {
   await sendNotification(userData.wallet_address, investors_title, investors_body, 1) // 1 -> a broadcast
 
   return {
-    project_id: projectId
+    project_id: projectId,
+    plan_id: planId,
   }
 }
 
@@ -91,14 +114,15 @@ async function investInProject(req, res) {
   const projectObject = await getData('projects/' + project_id)
 
   const contract = new ethers.Contract(contractAddress, contractABI, infuraProvider);
+  const signer = new ethers.Wallet(PRIVATE_KEY, infuraProvider);
 
   // Call smartcontract to get progress and other info
-  const plan_status = await contract.viewPlanStatus(project_id)
+  const plan_status = await contract.connect(signer).viewPlanStatus(project_id)
 
   // Check if investment is valid based on target amount, min, expiration etc
 
   // Call smartcontract to invest on user's behave
-  await contract.delegateInvestInPlan(userData.wallet_address, amount, project_id)
+  await contract.connect(signer).delegateInvestInPlan(userData.wallet_address, amount, project_id)
 
   // Call NFT storage and mint NFT
 

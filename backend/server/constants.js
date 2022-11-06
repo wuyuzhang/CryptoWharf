@@ -1,11 +1,15 @@
 const contractABI = [
-  "function soulsOf(address buddy) view returns(address[])",
-  "function buddyOf(address soul) view returns(address)",
-  "function registerSoul(address soul, bytes signature, string nonce)",
-  "function unregisterSoul(address soul)",
-  "function unregisterBuddy()",
-  "event SoulRegistered(address indexed buddy, address indexed soul)",
-  "event SoulUnregistered(address indexed buddy, address indexed soul)",
+  "function createPlan(string plan_id, string project_id, string project_name, address payout_address, uint256 target_amount, uint256 minimum_investment_amount, uint256 expiration_time) public",
+  "function viewPlanStatus(string plan_id) public view returns(uint256[5])",
+  "function investInPlan(uint256 amount, string plan_id)",
+  "function delegateInvestInPlan(address investor, uint256 amount, string plan_id)",
+  "function unlockPlan(string memory plan_id) public",
+  "function refundPlan(string memory plan_id) public",
+  "function withdraw(uint256 amount) external",
+  "function depositTokens(uint256 amount) external",
+  "function balanceOf(address account) public view returns (uint256)",
+  "function alluoBalanceOf(address account) public view returns (int256)",
+  "function tokensReceived(address operator, address from, address to, uint256 amount, bytes userData, bytes operatorData) external",
 ]
 
 const ERC20ABI = [
