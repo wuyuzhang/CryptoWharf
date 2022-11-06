@@ -30,10 +30,16 @@ async function createProject(req, res) {
 
   await setData('projects/' + projectId, projectObject)
 
-  // send notification using PUSH
-  const title = 'Congrats on creating your project - ' + req.body.name
-  const body = 'We are excited to inform your that your project *' + req.body.name + '* is created successfully on CryptoWharf!'
-  await sendNotification(userData.wallet_address, title, body)
+  // PUSH notification
+  // send message to founder
+  const founder_title = 'Congrats on creating your project - ' + req.body.name
+  const founder_body = 'We are excited to inform your that your project *' + req.body.name + '* is created successfully on CryptoWharf!'
+  await sendNotification(userData.wallet_address, founder_title, founder_body, 3) // 3 -> a target user
+
+  // sned message to all investers
+  const investors_title = 'We have a new project - ' + req.body.name
+  const investors_body = 'We are excited to inform your that we have a new project *' + req.body.name + '* is doing fundraising!'
+  await sendNotification(userData.wallet_address, investors_title, investors_body, 1) // 1 -> a broadcast
 
   return {
     project_id: projectId

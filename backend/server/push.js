@@ -6,11 +6,11 @@ const PK = 'ba28f8b5520688563dabda382db5b955164a261dcacf42e89dde7bf806033ae3' //
 const Pkey = `0x${PK}`
 const signer = new ethers.Wallet(Pkey)
 
-const sendNotification = async (recipientAddress, title, body) => {
+const sendNotification = async (recipientAddress, title, body, type) => {
   try {
     const apiResponse = await PushAPI.payloads.sendNotification({
       signer,
-      type: 3, // target
+      type: type, // target
       identityType: 2, // direct payload
       notification: {
         title,
