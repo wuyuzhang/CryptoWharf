@@ -12,7 +12,7 @@ const web3 = new Web3(
 );
 
 const infuraProvider = new ethers.providers.JsonRpcProvider("https://polygon-mumbai.infura.io/v3/5b097d2dbc6749448e0f5419c7a3da7d")
-const contractAddress = "0x6FF8Ad006DF88f8fDA884699D9365eC712690f94"
+const contractAddress = "0x6D5948c9cFe56629b6cBfdE8eA806830365a8da1"
 const PRIVATE_KEY = '7fc22f70a4ee05aa17a3a7db2da7e2a23fcaf0c0f7228e262f74d689da1d9d7a'
 const nftContractAddress = "0x41EaE9123382f19AbA0f3666Cd6A5988a705A292"
 
@@ -47,11 +47,10 @@ async function createProject(req, res) {
 
   const contract = new ethers.Contract(contractAddress, contractABI, infuraProvider);
   const signer = new ethers.Wallet(PRIVATE_KEY, infuraProvider);
-  const planId = uuid(4)
 
   // Call smartcontract to get progress and other info
   await contract.connect(signer).createPlan(
-    planId,
+    projectId,
     projectId,
     projectObject.name,
     userData.wallet_address,
@@ -73,7 +72,6 @@ async function createProject(req, res) {
 
   return {
     project_id: projectId,
-    plan_id: planId,
   }
 }
 

@@ -201,10 +201,6 @@ contract Fundraise is IERC777Recipient {
                 _plan_id_to_plan[plan_id].target_amount,
             "Target amount not met"
         );
-        require(
-            _plan_id_to_plan[plan_id].expiration_time < block.timestamp,
-            "Raising hasn't finished yet"
-        );
 
         IERC20 ERC20Contract = IERC20(_default_base_token_contract);
         ERC20Contract.approve(

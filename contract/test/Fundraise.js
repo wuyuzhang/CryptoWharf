@@ -21,7 +21,7 @@ describe('Fundraise contract', () => {
     // Deploy Fundraise contract
     const [owner, addr1, addr2, addr3] = await ethers.getSigners();
     const Fundraise = await ethers.getContractFactory("Fundraise");
-    const fundraiseContract = await Fundraise.deploy("0xC2DbaAEA2EfA47EBda3E572aa0e55B742E408BF6", "0x3E14dC1b13c488a8d5D310918780c983bD5982E7");
+    const fundraiseContract = await Fundraise.deploy("0x71402a46d78a10c8eE7E7CdEf2AffeC8d1E312A1", "0xEB796bdb90fFA0f28255275e16936D25d3418603");
     expect(await fundraiseContract._owner()).to.equal(owner.address);
 
     // Test create and view plan

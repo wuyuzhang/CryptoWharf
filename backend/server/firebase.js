@@ -9,14 +9,14 @@ const app = admin.initializeApp({
 const DATABASE_URL = 'https://jomo-hackathon-default-rtdb.firebaseio.com/'
 const DATABASE_PATH = `${process.env.TEST_ENV_NAME ===
   ''
-? '/'
-: process.env.TEST_ENV_NAME + '/'}`
+  ? '/'
+  : process.env.TEST_ENV_NAME + '/'}`
 
 /**
  * Add two numbers.
  * @return {number} The DB
  */
-function getDB () {
+function getDB() {
   if (process.env.RUNTIME_ENV !== 'test' && process.env.TEST_ENV_NAME !== '') {
     console.log('Invalid ENV settings for database.')
     return null
@@ -33,7 +33,7 @@ function getDB () {
  * @param {string} path
  * @return {number} The sum of the two numbers.
  */
-async function getData (path) {
+async function getData(path) {
   const data = await getDB().ref(DATABASE_PATH + path).once('value')
   return data.val()
 }
@@ -43,7 +43,7 @@ async function getData (path) {
  * @param {string} path
  * @param {string} obj
  */
-async function setData (path, obj) {
+async function setData(path, obj) {
   await getDB().ref(DATABASE_PATH + path).update(obj)
 }
 
@@ -52,7 +52,7 @@ async function setData (path, obj) {
  * @param {string} path
  * @param {string} obj
  */
-async function pushToList (path, obj) {
+async function pushToList(path, obj) {
   await getDB().ref(DATABASE_PATH + path).push(obj)
 }
 
@@ -60,7 +60,7 @@ async function pushToList (path, obj) {
  * Add two numbers.
  * @param {string} updates
  */
-async function batchUpdate (updates) {
+async function batchUpdate(updates) {
   await getDB().ref(DATABASE_PATH).update(updates)
 }
 
@@ -70,7 +70,7 @@ async function batchUpdate (updates) {
  * @param {string} eventName
  * @param {string} callbackFunction
  */
-function registerHook (path, eventName, callbackFunction) {
+function registerHook(path, eventName, callbackFunction) {
   getDB().ref(DATABASE_PATH + path).on(eventName, callbackFunction)
 }
 
@@ -80,7 +80,7 @@ function registerHook (path, eventName, callbackFunction) {
  * @param {string} eventName
  * @param {string} callbackFunction
  */
-function detachHook (path, eventName, callbackFunction) {
+function detachHook(path, eventName, callbackFunction) {
   getDB().ref(DATABASE_PATH + path).off(eventName, callbackFunction)
 }
 

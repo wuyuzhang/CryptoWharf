@@ -46,7 +46,7 @@ const CONTRACT_ABI = [
     "function tokensReceived(address operator, address from, address to, uint256 amount, bytes userData, bytes operatorData) external",
 ]
 
-const CONTRACT_ADDRESS = "0x6FF8Ad006DF88f8fDA884699D9365eC712690f94"
+const CONTRACT_ADDRESS = "0x6D5948c9cFe56629b6cBfdE8eA806830365a8da1"
 
 export default function ProjectList() {
     const { user, signer } = useUserContext();
@@ -117,7 +117,7 @@ export default function ProjectList() {
         const params = {
             sellToken: USDC_ADDRESS,
             buyToken: MATIC_ADDRESS,
-            sellAmount: amount,
+            sellAmount: 100000,
             takerAddress: user.wallet_address,
         }
 
@@ -241,7 +241,7 @@ function ProjectCard(props: {
 }) {
     const [investInput, setInvestInput] = useState<InvestProject>({
         projectId: props.project_id,
-        investAmount: 100000,
+        investAmount: 10000000,
         investCoin: 'USDC',
     });
     return (
