@@ -12,6 +12,7 @@ const { createProfile } = require('./profile')
 const { createProject, listProjects, investInProject } = require('./project')
 const { verifyWorldcoinProof, checkIfUserVerified } = require('./worldcoin');
 const { receivePushNotification } = require('./push');
+const { getUploadVideoUrl } = require('./livepeer')
 
 const cors = require('cors')
 // Automatically allow cross-origin requests
@@ -92,6 +93,14 @@ app.post('/api/push_hook', (req, res) => {
       res.json(response);
     }
   });
+});
+
+app.post("/api/get_upload_video_url", (req, res) => {
+  getUploadVideoUrl(req, res).then((response) => {
+    if (response) {
+      res.json(response);
+    }
+  })
 });
 
 app.listen(PORT, () => {
