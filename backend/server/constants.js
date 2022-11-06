@@ -194,7 +194,7 @@ const ERC20ABI = [
   }
 ]
 
-export {
+module.exports = {
   contractABI,
   ERC20ABI,
 }

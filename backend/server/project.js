@@ -1,8 +1,8 @@
 const { setData, getData } = require('./firebase')
 const { authenticate } = require('./auth')
 const { sendNotification } = require('./push')
-import { contractABI } from "./constants.js"
-import { ethers } from 'ethers';
+const { contractABI } = require("./constants.js")
+const { ethers } = require('ethers');
 
 const infuraProvider = new ethers.providers.JsonRpcProvider("https://polygon.infura.io/v3/5b097d2dbc6749448e0f5419c7a3da7d")
 const contractAddress = ""
