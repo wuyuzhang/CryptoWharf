@@ -4,8 +4,8 @@ const { sendNotification } = require('./push')
 const { contractABI } = require("./constants.js")
 const { ethers } = require('ethers');
 
-const infuraProvider = new ethers.providers.JsonRpcProvider("https://polygon.infura.io/v3/5b097d2dbc6749448e0f5419c7a3da7d")
-const contractAddress = ""
+const infuraProvider = new ethers.providers.JsonRpcProvider("https://polygon-mumbai.infura.io/v3/5b097d2dbc6749448e0f5419c7a3da7d")
+const contractAddress = "0x6FF8Ad006DF88f8fDA884699D9365eC712690f94"
 
 const uuid = require('uuid4')
 
