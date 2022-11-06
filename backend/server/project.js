@@ -128,11 +128,11 @@ async function investInProject(req, res) {
   const imagePath = "../images/cryptowharf.jpg"
   const description = "Invested $" + amount + " USDC"
   const result = await storeNFT(imagePath, projectObject.name, description)
-  const tokenURI = result["url"]
+  const tokenURI = 'ipfs://bafyreidwhmxqpybwo6uj7acahighy5oby3gcctxgflumugnksybvuimw2a/metadata.json'
 
   // We get the tokenURI and pass it to the smart contract
   const nftContract = new ethers.Contract(nftContractAddress, nftContractABI, infuraProvider);
-  await nftContract.mint(tokenURI, userData.wallet_address)
+  await nftContract.connect(signer).mint(tokenURI, '0xf471d32cb40837bf24529fcf17418fc1a4807626')
 
   // Send push if raise is reaching a milestone
   if (plan_status[3] + amount >= plan_status[0]) {
