@@ -88,6 +88,10 @@ async function investInProject(req, res) {
   // Call smartcontract to check raising progress
 
   // Send push if raise is reaching a milestone
+  const title = 'Your project - ' + req.body.name + ' has raised 100% of your target'
+  const body = 'We are excited to inform your that your project *' + req.body.name + '* has raised 100% of your target!'
+  await sendNotification(userData.wallet_address, title, body)
+
 
   return {
     projectObject
