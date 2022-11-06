@@ -40,7 +40,7 @@ async function verifyWorldcoinProof(req, res) {
 
   // TODO: Grab Worldcoin inputs from req, call Worldcoin to verify
   const response_json = await axios.post("https://developer.worldcoin.org/api/v1/verify", {
-    "action_id": "wid_staging_438cadb410ecfe8e7851b4ad4e58b6d9",
+    "action_id": "wid_staging_a839d2a1308a2680a4c9fda77cc66fbc",
     "signal": userData.wallet_address,
     "proof": req.body.proof,
     "nullifier_hash": req.body.nullifier_hash,
@@ -49,6 +49,7 @@ async function verifyWorldcoinProof(req, res) {
     .then(response => { return response })
     .catch((err) => {
       // Handle error
+      console.log(err)
       res.status(500).send('Failed');
     });
 

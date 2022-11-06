@@ -180,7 +180,7 @@ export default function ProjectList() {
         <>
             {!userVerified &&
                 <WorldIDWidget
-                    actionId="wid_staging_438cadb410ecfe8e7851b4ad4e58b6d9" // obtain this from developer.worldcoin.org
+                    actionId="wid_staging_a839d2a1308a2680a4c9fda77cc66fbc" // obtain this from developer.worldcoin.org
                     signal={user.wallet_address}
                     enableTelemetry
                     onSuccess={(verificationResponse) => verifyWorldcoinProof(verificationResponse)} // pass the proof to the API or your smart contract
