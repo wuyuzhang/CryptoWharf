@@ -1,6 +1,11 @@
 const { setData, getData } = require('./firebase')
 const { authenticate } = require('./auth')
 const { sendNotification } = require('./push')
+import { contractABI } from "./constants.js"
+import { ethers } from 'ethers';
+
+const infuraProvider = new ethers.providers.JsonRpcProvider("https://polygon.infura.io/v3/5b097d2dbc6749448e0f5419c7a3da7d")
+const contractAddress = ""
 
 const uuid = require('uuid4')
 
@@ -85,24 +90,26 @@ async function investInProject(req, res) {
   // get project object
   const projectObject = await getData('projects/' + project_id)
 
+  const contract = new ethers.Contract(contractAddress, contractABI, infuraProvider);
+
   // Call smartcontract to get progress and other info
+  const plan_status = await contract.viewPlanStatus(project_id)
 
-  // 0x swap token to project base token contract
-
-  // Grant allowance for the base token contract and the amount
+  // Check if investment is valid based on target amount, min, expiration etc
 
   // Call smartcontract to invest on user's behave
+  await contract.delegateInvestInPlan(userData.wallet_address, amount, project_id)
 
-  // Call smartcontract to check raising progress
+  // Call NFT storage and mint NFT
 
   // Send push if raise is reaching a milestone
+  // TODO: check the milestone
   const title = 'Your project - ' + req.body.name + ' has raised 100% of your target'
   const body = 'We are excited to inform your that your project *' + req.body.name + '* has raised 100% of your target!'
   await sendNotification(userData.wallet_address, title, body)
 
-
   return {
-    projectObject
+    'success': true,
   }
 }
 
