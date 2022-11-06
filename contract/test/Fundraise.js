@@ -10,7 +10,7 @@ describe('Fundraise contract', () => {
       params: [{
         forking: {
           enabled: true,
-          jsonRpcUrl: "https://polygon-mainnet.g.alchemyapi.io/v2/u_FXALLy4x1YgU3d25d6jSmEvX2pgdcc",
+          jsonRpcUrl: "https://polygon-mumbai.g.alchemyapi.io/v2/u_FXALLy4x1YgU3d25d6jSmEvX2pgdcc",
           //you can fork from last block by commenting next line
         },
       },],
@@ -44,16 +44,16 @@ describe('Fundraise contract', () => {
 
   it("Test deposit, invest, unlock plan and withdraw", async function () {
     const [owner, founder, investor1, investor2] = await ethers.getSigners();
-    let usdcWhale = await ethers.getImpersonatedSigner("0xf89d7b9c864f589bbf53a82105107622b35eaa40");
+    let usdcWhale = await ethers.getImpersonatedSigner("0x71632b0e6b5347bac09e85a40b329397af473933");
 
     // Deploy Token contract and transfer funds to investor accounts
-    const tokenContract = await ethers.getContractAt("Token", "0x2791bca1f2de4661ed88a30c99a7a9449aa84174"); // USDC
+    const tokenContract = await ethers.getContractAt("Token", "0xe097d6b3100777dc31b34dc2c58fb524c2e76921"); // USDC
     await tokenContract.connect(usdcWhale).transfer(investor1.address, 77770000);
     await tokenContract.connect(usdcWhale).transfer(investor2.address, 77760000);
 
     // Deploy Fundraise contract and initialize base token contract as above Token contract
     const Fundraise = await ethers.getContractFactory("Fundraise");
-    const fundraiseContract = await Fundraise.deploy("0xC2DbaAEA2EfA47EBda3E572aa0e55B742E408BF6", "0x3E14dC1b13c488a8d5D310918780c983bD5982E7");
+    const fundraiseContract = await Fundraise.deploy("0x71402a46d78a10c8eE7E7CdEf2AffeC8d1E312A1", "0xEB796bdb90fFA0f28255275e16936D25d3418603");
     expect(await fundraiseContract._owner()).to.equal(owner.address);
     await fundraiseContract.connect(owner).updateBaseTokenContract(tokenContract.address);
 
@@ -133,92 +133,5 @@ describe('Fundraise contract', () => {
     await network.provider.send("evm_setNextBlockTimestamp", [timestampBefore + 15000]);
     await expect(fundraiseContract.connect(investor2).investInPlan(20, "test_plan_id")).to.be.revertedWith("Plan already closed");
     expect(await fundraiseContract.alluoBalanceOf(founder.address)).to.equal(41590);
-  });
-
-  it("Test deposit, invest, refund plan", async function () {
-    const [owner, founder, investor1, investor2] = await ethers.getSigners();
-
-    // Deploy Token contract and transfer funds to investor accounts
-    const Token = await ethers.getContractFactory("Token");
-    const tokenContract = await Token.deploy();
-    await tokenContract.connect(owner).transfer(investor1.address, 200);
-    expect(await tokenContract.balanceOf(investor1.address)).to.equal(200);
-    await tokenContract.connect(owner).transfer(investor2.address, 500);
-    expect(await tokenContract.balanceOf(investor2.address)).to.equal(500);
-
-    // Deploy Fundraise contract and initialize base token contract as above Token contract
-    const Fundraise = await ethers.getContractFactory("Fundraise");
-    const fundraiseContract = await Fundraise.deploy("0xC2DbaAEA2EfA47EBda3E572aa0e55B742E408BF6", "0x3E14dC1b13c488a8d5D310918780c983bD5982E7");
-    expect(await fundraiseContract._owner()).to.equal(owner.address);
-    await fundraiseContract.connect(owner).updateBaseTokenContract(tokenContract.address);
-
-    // Investors set allowance for fundraise contract to transfer funds
-    await tokenContract.connect(investor1).increaseAllowance(fundraiseContract.address, 200);
-    expect(await tokenContract.allowance(investor1.address, fundraiseContract.address)).to.equal(200);
-    await tokenContract.connect(investor2).increaseAllowance(fundraiseContract.address, 500);
-    expect(await tokenContract.allowance(investor2.address, fundraiseContract.address)).to.equal(500);
-
-    // Investor deposit token into fundraise contract
-    await fundraiseContract.connect(investor1).depositTokens(200);
-    expect(await fundraiseContract.balanceOf(investor1.address)).to.equal(200);
-    await fundraiseContract.connect(investor2).depositTokens(300);
-    expect(await fundraiseContract.balanceOf(investor2.address)).to.equal(300);
-
-    // Get current block timestamp
-    const blockNumBefore = await ethers.provider.getBlockNumber();
-    const blockBefore = await ethers.provider.getBlock(blockNumBefore);
-    const timestampBefore = blockBefore.timestamp;
-
-    // Test create and view plan
-    await fundraiseContract.connect(owner).createPlan(
-      "test_plan_id",
-      "test_project_id",
-      "test_project_name",
-      founder.address,
-      100,
-      10,
-      timestampBefore + 10000
-    );
-
-    // Investor1 invest in plan successfully
-    await network.provider.send("evm_setNextBlockTimestamp", [timestampBefore + 100]);
-    await fundraiseContract.connect(investor1).investInPlan(20, "test_plan_id")
-    var expected = await fundraiseContract.viewPlanStatus("test_plan_id");
-    expect(expected[3]).to.equal(20);
-    expect(expected[4]).to.equal(20);
-
-    // Investor2 invest in plan successfully
-    await network.provider.send("evm_setNextBlockTimestamp", [timestampBefore + 200]);
-    await fundraiseContract.connect(investor2).investInPlan(10, "test_plan_id")
-    var expected = await fundraiseContract.viewPlanStatus("test_plan_id");
-    expect(expected[3]).to.equal(30);
-    expect(expected[4]).to.equal(30);
-
-    // Investor1 invest in plan again successfully
-    await network.provider.send("evm_setNextBlockTimestamp", [timestampBefore + 300]);
-    await fundraiseContract.connect(investor1).investInPlan(30, "test_plan_id")
-    var expected = await fundraiseContract.viewPlanStatus("test_plan_id");
-    expect(expected[3]).to.equal(60);
-    expect(expected[4]).to.equal(60);
-
-    // Investor2 fails to invest (too small)
-    await network.provider.send("evm_setNextBlockTimestamp", [timestampBefore + 400]);
-    await expect(fundraiseContract.connect(investor2).investInPlan(5, "test_plan_id")).to.be.revertedWith("Min investment requirements not met");
-    var expected = await fundraiseContract.viewPlanStatus("test_plan_id");
-    expect(expected[3]).to.equal(60);
-    expect(expected[4]).to.equal(60);
-
-    // Plan refunded
-    await network.provider.send("evm_setNextBlockTimestamp", [timestampBefore + 11000]);
-    expect(await fundraiseContract.balanceOf(founder.address)).to.equal(0);
-    expect(await fundraiseContract.balanceOf(investor1.address)).to.equal(150);
-    expect(await fundraiseContract.balanceOf(investor2.address)).to.equal(290);
-    await fundraiseContract.refundPlan("test_plan_id");
-    expect(await fundraiseContract.balanceOf(founder.address)).to.equal(0);
-    expect(await fundraiseContract.balanceOf(investor1.address)).to.equal(200);
-    expect(await fundraiseContract.balanceOf(investor2.address)).to.equal(300);
-    var expected = await fundraiseContract.viewPlanStatus("test_plan_id");
-    expect(expected[3]).to.equal(60);
-    expect(expected[4]).to.equal(0);
   });
 })

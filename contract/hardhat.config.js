@@ -23,6 +23,10 @@ module.exports = {
     polygon: {
       url: `https://eth-polygon.alchemyapi.io/v2/${ALCHEMY_API_KEY}`,
       accounts: [GOERLI_PRIVATE_KEY]
+    },
+    mumbai: {
+      url: `https://eth-mumbai.alchemyapi.io/v2/${ALCHEMY_API_KEY}`,
+      accounts: [GOERLI_PRIVATE_KEY]
     }
   }
 };

@@ -11,6 +11,7 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import { ethers } from 'ethers';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
+import { Player } from '@livepeer/react';
 
 const Web3 = require("web3");
 const qs = require('qs');
@@ -291,7 +292,12 @@ function ProjectCard(props: {
 
                     }}
                 >
-
+                    <Player
+                        playbackId={props.project.livepeer_playbackurl}
+                        autoPlay={true}
+                        loop
+                        muted
+                    />
                 </Box>
 
                 <Typography className="item-body" align='left'
