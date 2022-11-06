@@ -14,7 +14,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import IconButton from '@mui/material/IconButton';
 import Collapse from '@mui/material/Collapse';
 // @ts-ignore
-import {useUserContext} from '../context/UserContext.tsx';
+import { useUserContext } from '../context/UserContext.tsx';
 import { Category } from "@mui/icons-material";
 
 
@@ -25,11 +25,13 @@ type FormInput = {
     stage: string
     targetAmount: number
     targetCoin: string
+    videoAddress: string
 }
 
 function Form() {
-    const {user} = useUserContext();
+    const { user } = useUserContext();
     const [image, setImage] = useState('');
+    const [video, setVideo] = useState('');
     const [showSuccess, setShowSuccess] = useState(false);
 
     const [formInput, setFormInput] = useState<FormInput>({
@@ -39,6 +41,7 @@ function Form() {
         stage: '',
         targetAmount: 0,
         targetCoin: '',
+        videoAddress: '',
     });
 
     async function backendRequest(url = '', data = {}) {
@@ -84,11 +87,21 @@ function Form() {
         })
 
         setShowSuccess(true);
-        
+
     };
     const onImageChange = (event) => {
         if (event.target.files && event.target.files[0]) {
             setImage(URL.createObjectURL(event.target.files[0]));
+        }
+    }
+
+    const onVideoChange = async (event) => {
+        if (event.target.files && event.target.files[0]) {
+            const address = await backendRequest("/api/get_upload_video_url", {
+                "filename": event.target.files[0].name
+            })
+            setVideo(address['url']);
+            setFormInput({ ...formInput, videoAddress: address });
         }
     }
     const InputWithTitle = styled(InputBase)(({ theme }) => ({
@@ -129,7 +142,7 @@ function Form() {
             },
         },
     }));
-
+    console.log(video);
     return (
         <Box
             component="form"
@@ -252,16 +265,13 @@ function Form() {
                                     minHeight: 100,
                                     backgroundColor: '#fcfcfb',
                                     m: 1,
-                                    border: 1,
-                                    borderColor: '#3F3F3F',
-                                    borderStyle: 'dashed',
+                                    border: '1px dashed grey',
                                     mt: 4,
-                                    alignItems: '',
-
                                 }}
                             >
                                 {image === '' ? <Typography align='center' sx={{
                                     backgroundColor: '#fcfcfb',
+                                    pt: 5,
                                 }}>
                                     Logo Preview
                                 </Typography> :
@@ -271,6 +281,54 @@ function Form() {
                             <label htmlFor="raised-button-file" align='start'>
                                 <Button component="span">
                                     Upload Logo
+                                </Button>
+                            </label>
+                        </FormControl>
+                    </Grid>
+                    <Grid item xs={6} container justifyContent="flex-start">
+                    </Grid>
+                    <Grid item xs={12} container justifyContent="flex-start">
+                        <FormControl fullWidth variant="standard">
+                            <InputLabel shrink htmlFor="bootstrap-input">
+                                Upload A Video To Better Introduce Your Project *
+                            </InputLabel>
+                            <input
+                                style={{ display: 'none' }}
+                                id="video"
+                                type="file"
+                                accept='video/mp4'
+                                onChange={onVideoChange}
+                            />
+
+                            <Box
+                                sx={{
+                                    width: '60%',
+                                    minHeight: 100,
+                                    backgroundColor: '#fcfcfb',
+                                    m: 1,
+                                    border: '1px dashed grey',
+                                    mt: 4,
+                                }}
+                            >
+                                {video === '' ? <Typography align='center' sx={{
+                                    backgroundColor: '#fcfcfb',
+                                    pt: 5,
+                                }}>
+                                    Video Preview
+                                </Typography> :
+                                    <Typography align='center'
+                                        sx={{
+                                            backgroundColor: '#fcfcfb',
+                                            pt: 2,
+                                            fontSize: '10px',
+                                            wordBreak: "break-all"
+                                        }}>
+                                        LivePeer Upload URL: {video}
+                                    </Typography>}
+                            </Box>
+                            <label htmlFor="video" align='start'>
+                                <Button component="span">
+                                    Upload Video
                                 </Button>
                             </label>
                         </FormControl>
@@ -299,13 +357,17 @@ function Form() {
 
                             <Button
                                 disabled={showSuccess}
+                                sx={{
+                                    borderRadius: 2,
+                                    backgroundColor: '#6634F3',
+                                }}
                                 variant="contained"
                                 onClick={() => {
                                     onSubmit();
                                     console.log(JSON.stringify(formInput));
                                 }}
                             >
-                                Submit
+                                Start Fundraising
                             </Button>
                         </Box>
 
