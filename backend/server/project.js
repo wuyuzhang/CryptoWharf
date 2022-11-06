@@ -13,11 +13,8 @@ const web3 = new Web3(
 
 const infuraProvider = new ethers.providers.JsonRpcProvider("https://polygon-mumbai.infura.io/v3/5b097d2dbc6749448e0f5419c7a3da7d")
 const contractAddress = "0x6FF8Ad006DF88f8fDA884699D9365eC712690f94"
-<<<<<<< HEAD
 const PRIVATE_KEY = '7fc22f70a4ee05aa17a3a7db2da7e2a23fcaf0c0f7228e262f74d689da1d9d7a'
-=======
 const nftContractAddress = "0x41EaE9123382f19AbA0f3666Cd6A5988a705A292"
->>>>>>> 76b1f85 ([backend] Add nft geneartion and mint)
 
 const uuid = require('uuid4')
 
