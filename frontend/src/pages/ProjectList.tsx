@@ -1,6 +1,54 @@
 import React, { useState, useLayoutEffect, useRef } from 'react';
 import { WorldIDWidget } from '@worldcoin/id'
+// @ts-ignore
 import { useUserContext } from "../context/UserContext.tsx";
+import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
+import Toolbar from '@mui/material/Toolbar';
+import { Typography, OutlinedInput, InputAdornment } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import FilterListIcon from '@mui/icons-material/FilterList';
+
+
+function ProjectCard(props: {
+    project: any
+}) {
+    return (
+        <Grid item xs={6} container justifyContent="flex-start">
+            <Box
+                sx={{
+                    width: '90%',
+                    minHeight: 300,
+                    backgroundColor: '#fcfcfb',
+                    m: 0,
+                    mt: 4,
+                    alignItems: 'center',
+                    borderRadius: 2,
+                }}
+                boxShadow={3}
+            >
+                <Toolbar>
+                    <img src={require("../images/logo.png")} alt={'logo'} />
+                    <Typography align='center' sx={{
+                        ml: 1
+                    }}>
+                        {props.project.name}
+                    </Typography>
+                </Toolbar>
+                <Typography className="item-body" align='left'
+                    sx={{
+                        color: '#515151',
+                        fontFamily: 'Montserrat',
+                        fontSize: '15px',
+                        fontWeight: 300,
+                        pl: 3,
+                    }} >
+                    {props.project.description}
+                </Typography>
+            </Box>
+        </Grid>
+    );
+}
 
 import { ethers } from 'ethers';
 const Web3 = require("web3");
@@ -31,6 +79,7 @@ const CONTRACT_ADDRESS = "0x6FF8Ad006DF88f8fDA884699D9365eC712690f94"
 export default function ProjectList() {
     const { user, provider } = useUserContext();
     const [userVerified, setUserVerified] = useState(true)
+    const [projects, setProjects] = useState<any[]>([])
     const firstUpdate = useRef(true);
 
     async function backendRequest(url = '', data = {}) {
@@ -60,12 +109,14 @@ export default function ProjectList() {
         return backendRequest(url, data)
     }
 
-    async function listProjects(url = '', data = {}) {
-        const projects = await backendRequest("/api/list_projects", {
-            "user_uuid": user.user_uuid,
-            "auth_token": user.auth_token
-        })
-        return projects
+    async function listProjects() {
+        authedBackendRequest('api/list_projects', {})
+            .then(
+                res => {
+                    // console.log(res);
+                    console.log(res.projectObjects);
+                    setProjects(res.projectObjects);
+                })
     }
 
     async function checkIfUserVerified() {
@@ -124,6 +175,7 @@ export default function ProjectList() {
     }
 
     useLayoutEffect(() => {
+        listProjects()
         if (firstUpdate.current && user) {
             checkIfUserVerified()
             firstUpdate.current = false;
@@ -133,9 +185,13 @@ export default function ProjectList() {
     }, [user])
 
     return (
+<<<<<<< HEAD
         <div>
             <h1>Project List</h1>
             <button onClick={() => investInProject('something', 10000, '')}>swap</button>
+=======
+        <>
+>>>>>>> [frontend] Add project list page
             {!userVerified &&
                 <WorldIDWidget
                     actionId="wid_staging_438cadb410ecfe8e7851b4ad4e58b6d9" // obtain this from developer.worldcoin.org
@@ -146,6 +202,47 @@ export default function ProjectList() {
                     debug={true} // to aid with debugging, remove in production
                 />
             }
-        </div>
+            <Grid container rowSpacing={5} columnSpacing={2} sx={{ width: '100%', pl: 7, pt: 7 }}>
+                <Grid item xs={12} container justifyContent="flex-start">
+                    <Typography sx={{ pl: 1, fontSize: '22px', fontWeight: 500, }}>
+                        Projects Review
+                    </Typography>
+                </Grid>
+                <Grid item xs={6} container justifyContent="flex-start">
+                    <OutlinedInput
+                        label=""
+                        size="small"
+                        placeholder="  Search Companies"
+                        sx={{ pl: 1, borderRadius: 4, width: '60%' }}
+                        startAdornment={
+                            <InputAdornment position="end">
+                                <SearchIcon />
+                            </InputAdornment>
+                        }
+                    />
+                </Grid>
+                <Grid item xs={6} container justifyContent="flex-start" alignItems={"center"}>
+                    <Typography sx={{ pl: 1, fontSize: '16px', fontWeight: 500, }}>
+                        Filters:
+                    </Typography>
+                    <OutlinedInput
+                        label=""
+                        value=" Category (1)"
+                        size="small"
+                        sx={{ ml: 2, pl: 1, borderRadius: 4, width: '40%' }}
+                        startAdornment={
+                            <InputAdornment position="end">
+                                <FilterListIcon />
+                            </InputAdornment>
+                        }
+                    />
+                </Grid>
+                {
+                    Object.keys(projects).map(key =>
+                        <ProjectCard key={key} project={projects[key]} />
+                    )
+                }
+            </Grid>
+        </>
     )
 }

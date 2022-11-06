@@ -8,6 +8,7 @@ import ConnectWallet from './ConnectWallet.tsx';
 import { Link } from 'react-router-dom'
 // @ts-ignore
 import { useUserContext } from '../context/UserContext.tsx';
+import { Typography } from '@mui/material';
 
 declare var require: any
 
@@ -24,8 +25,11 @@ export default function NavBar() {
         <AppBar color='transparent' position="static">
             <Toolbar>
                 <img src={require("../images/logo.png")} alt={'logo'} />
-
-                <div >CryptoWharf</div>
+                <Typography align='center' sx={{
+                    ml: 1
+                }}>
+                    CryptoWharf
+                </Typography>
 
                 <Box sx={{ flexGrow: 1, pl: 7, display: { xs: 'none', md: 'flex' } }}>
                     {menus.map(menu => (
