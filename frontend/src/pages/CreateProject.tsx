@@ -320,6 +320,9 @@ function Form() {
                                         sx={{
                                             backgroundColor: '#fcfcfb',
                                             pt: 2,
+                                            pl: 1,
+                                            pr: 1,
+                                            pb: 2,
                                             fontSize: '10px',
                                             wordBreak: "break-all"
                                         }}>
