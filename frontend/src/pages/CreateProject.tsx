@@ -14,7 +14,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import IconButton from '@mui/material/IconButton';
 import Collapse from '@mui/material/Collapse';
 // @ts-ignore
-import UserContext from '../context/UserContext.tsx';
+import {useUserContext} from '../context/UserContext.tsx';
 import { Category } from "@mui/icons-material";
 
 
@@ -28,6 +28,7 @@ type FormInput = {
 }
 
 function Form() {
+    const {user} = useUserContext();
     const [image, setImage] = useState('');
     const [showSuccess, setShowSuccess] = useState(false);
 
@@ -39,10 +40,44 @@ function Form() {
         targetAmount: 0,
         targetCoin: '',
     });
-    const onSubmit = (event: React.ChangeEvent<HTMLInputElement>) => {
-        <Alert onClose={() => { }}>
-            Congratulations! Your project is submitted successfully!
-        </Alert>
+
+    async function backendRequest(url = '', data = {}) {
+        // Default options are marked with *
+        const response = await fetch(url, {
+            method: 'POST', // *GET, POST, PUT, DELETE, etc.
+            mode: 'same-origin', // no-cors, *cors, same-origin
+            cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+            credentials: 'same-origin', // include, *same-origin, omit
+            headers: {
+                'Content-Type': 'application/json'
+                // 'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            redirect: 'follow', // manual, *follow, error
+            referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+            body: JSON.stringify(data) // body data type must match "Content-Type" header
+        });
+        if (response.status === 200) {
+            return response.json(); // parses JSON response into native JavaScript objects
+        } else {
+            return  // return null for failed requests
+        }
+    }
+
+    const onSubmit = async () => {
+        await backendRequest("/api/create_project", {
+            "user_uuid": user.user_uuid,
+            "auth_token": user.auth_token,
+            "name": formInput.projectName,
+            "category": formInput.category,
+            "logo_url": "https://www.google.com/imgres?imgurl=https://pbs.twimg.com/profile_images/1333830155287097349/rGY9wviF_400x400.jpg&imgrefurl=https://mobile.twitter.com/ethglobal&tbnid=V1NM65UzFeSabM&vet=1&docid=F8R2PUctRxpgzM&w=400&h=400&source=sh/x/im",
+            "description": formInput.whyInvest,
+            "stage": formInput.stage,
+            "coin": formInput.targetCoin,
+            "target": 1
+        })
+
+        setShowSuccess(true);
+        
         // call backend
         // formInput.projectName
     };
@@ -261,8 +296,8 @@ function Form() {
                                 disabled={showSuccess}
                                 variant="contained"
                                 onClick={() => {
+                                    onSubmit();
                                     console.log(JSON.stringify(formInput));
-                                    setShowSuccess(true);
                                 }}
                             >
                                 Submit
