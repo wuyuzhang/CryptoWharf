@@ -104,6 +104,9 @@ function ConnectWallet() {
     const [mouseOverWallet, setMouseOverWallet] = useState(false)
     const { user, setUser, signer, setSigner } = useUserContext()
     const [cookies, setCookie, removeCookie] = useCookies(['wallet_address', 'user_uuid', 'auth_token']);
+    const address_to_ens = useRef<Map<string, string>>(new Map())
+    const [formatted_addresses, setFormattedAddresses] = useState<Map<string, string>>(new Map())
+    const infuraProvider = new ethers.providers.JsonRpcProvider('https://mainnet.infura.io/v3/5b097d2dbc6749448e0f5419c7a3da7d')
 
     async function backendRequest(url = '', data = {}) {
         // Default options are marked with *
@@ -136,6 +139,25 @@ function ConnectWallet() {
         return backendRequest(url, data)
     }
 
+    const obfuscateAddress = (address) => {
+        return address.substring(0, 6) + "......" + address.substring(38)
+    }
+
+    const lookupEns = (address: string) => {
+        if (address_to_ens.current.has(address)) {
+            return
+        }
+        address_to_ens.current.set(address, obfuscateAddress(address))
+        setFormattedAddresses(new Map(address_to_ens.current))
+
+        infuraProvider.lookupAddress(address).then((ens_name) => {
+            if (ens_name) {
+                address_to_ens.current.set(address, ens_name)
+                setFormattedAddresses(new Map(address_to_ens.current))
+            }
+        })
+    }
+
     const connectWeb3Modal = async () => {
         if (web3Modal.cachedProvider) {
             web3Modal.clearCachedProvider()
@@ -151,6 +173,8 @@ function ConnectWallet() {
         const signer = provider.current!.getSigner()
         wallet_address.current = await signer.getAddress()
         setCookie('wallet_address', wallet_address.current, { path: '/' })
+
+        lookupEns(wallet_address.current)
     }
 
     const getNonce = async (nonce_context) => {
@@ -253,10 +277,6 @@ function ConnectWallet() {
         setMouseOverWallet(false);
     };
 
-    const obfuscateAddress = (address) => {
-        return address.substring(0, 6) + "......" + address.substring(38)
-    }
-
     return (
         <>
             <style>
@@ -269,7 +289,7 @@ function ConnectWallet() {
                     src={require("../images/wallet.png")}
                 />
                 {user && user.wallet_address ?
-                    obfuscateAddress(user.wallet_address) :
+                    formatted_addresses.get(user.wallet_address) :
                     <p onClick={() => connectWeb3Modal()} className='connect-wallet'>Connect Wallet</p>
                 }
             </div>
