@@ -8,49 +8,8 @@ import Toolbar from '@mui/material/Toolbar';
 import { Typography, OutlinedInput, InputAdornment } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
-
-
-function ProjectCard(props: {
-    project: any
-}) {
-    return (
-        <Grid item xs={6} container justifyContent="flex-start">
-            <Box
-                sx={{
-                    width: '90%',
-                    minHeight: 300,
-                    backgroundColor: '#fcfcfb',
-                    m: 0,
-                    mt: 4,
-                    alignItems: 'center',
-                    borderRadius: 2,
-                }}
-                boxShadow={3}
-            >
-                <Toolbar>
-                    <img src={require("../images/logo.png")} alt={'logo'} />
-                    <Typography align='center' sx={{
-                        ml: 1
-                    }}>
-                        {props.project.name}
-                    </Typography>
-                </Toolbar>
-                <Typography className="item-body" align='left'
-                    sx={{
-                        color: '#515151',
-                        fontFamily: 'Montserrat',
-                        fontSize: '15px',
-                        fontWeight: 300,
-                        pl: 3,
-                    }} >
-                    {props.project.description}
-                </Typography>
-            </Box>
-        </Grid>
-    );
-}
-
 import { ethers } from 'ethers';
+
 const Web3 = require("web3");
 const qs = require('qs');
 const BigNumber = require('bignumber.js');
@@ -185,13 +144,8 @@ export default function ProjectList() {
     }, [user])
 
     return (
-<<<<<<< HEAD
-        <div>
-            <h1>Project List</h1>
-            <button onClick={() => investInProject('something', 10000, '')}>swap</button>
-=======
         <>
->>>>>>> [frontend] Add project list page
+            <button onClick={() => investInProject('something', 10000, '')}>swap</button>
             {!userVerified &&
                 <WorldIDWidget
                     actionId="wid_staging_438cadb410ecfe8e7851b4ad4e58b6d9" // obtain this from developer.worldcoin.org
@@ -245,4 +199,44 @@ export default function ProjectList() {
             </Grid>
         </>
     )
+}
+
+function ProjectCard(props: {
+    project: any
+}) {
+    return (
+        <Grid item xs={6} container justifyContent="flex-start">
+            <Box
+                sx={{
+                    width: '90%',
+                    minHeight: 300,
+                    backgroundColor: '#fcfcfb',
+                    m: 0,
+                    mt: 4,
+                    alignItems: 'center',
+                    borderRadius: 2,
+                }}
+                boxShadow={3}
+            >
+                <Toolbar>
+                    <img src={require("../images/logo.png")} alt={'logo'} />
+                    <Typography align='center' sx={{
+                        ml: 1
+                    }}>
+                        {props.project.name}
+                    </Typography>
+                </Toolbar>
+                <Typography className="item-body" align='left'
+                    sx={{
+                        color: '#515151',
+                        fontFamily: 'Montserrat',
+                        fontSize: '15px',
+                        fontWeight: 300,
+                        pl: 3,
+                    }} >
+                    {props.project.description}
+                </Typography>
+            </Box>
+        </Grid>
+    );
 }
