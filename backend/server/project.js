@@ -30,7 +30,8 @@ async function createProject(req, res) {
     description: req.body.description,
     stage: req.body.stage,
     coin: req.body.coin,
-    target: req.body.target
+    target: req.body.target,
+    liverpeer_url: req.body.target.liverpeer_url
   }
 
   await setData('projects/' + projectId, projectObject)
