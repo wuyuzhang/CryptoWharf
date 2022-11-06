@@ -53,13 +53,35 @@ function NavButton(props: { pageLink: string; pageName: string; text: string }) 
 }
 export default function LandingPage() {
 
-    const TextGrid = (
+    const TextGrid1 = (
         <Grid item xs={6} flexDirection="column" alignItems="self-start" container justifyContent="center" >
-            <div className="item-title">Safe and Fast</div>
+            <div className="item-title">One stop platform</div>
             <Typography className="item-body" align='left' >
-                We built and support a powerful and
-                practical fundraising platform that is intuitively easy to use for donors.
+                CryptoWharf is a one stop platform for both founders and investors. Founders can easily reach out to potential investors across the globe. Investors have access to great projects without being in a high profile institution.
             </Typography>
+        </Grid>);
+
+    const TextGrid2 = (
+        <Grid item xs={6} flexDirection="column" alignItems="self-start" container justifyContent="center" >
+            <div className="item-title">Crypto friendly</div>
+            <Typography className="item-body" align='left' >
+                CryptoWharf supports fundraising and investment by multiple kinds of crypto. We also reduce your hassle by swapping to the target coin conveniently.
+            </Typography>
+        </Grid>);
+
+    const TextGrid3 = (
+        <Grid item xs={6} flexDirection="column" alignItems="self-start" container justifyContent="center" >
+            <div className="item-title">Video pitch support</div>
+            <Typography className="item-body" align='left' >
+                Instead of doing the same pitch to tens of investors again and again, CryptoWharf allows you to record a pitch video and share with millions of people in one click.
+            </Typography>
+        </Grid>);
+
+    const TextGrid4 = (
+        <Grid item xs={6} flexDirection="column" alignItems="self-start" container justifyContent="center" >
+            <div className="item-title">Social and legal</div>
+            <Typography className="item-body" align='left' >
+                Utilizing the NFT, CryptoWharf is able to help you record your investment permanently and share in your circle. We are also aiming to resolve legal issue by the usage of NFT.        </Typography>
         </Grid>);
 
     return (
@@ -85,8 +107,10 @@ export default function LandingPage() {
                 <Grid item xs={12} container justifyContent="flex-start">
                     <div className="title">Why use Crypto Wharf?</div>
                 </Grid>
-                {TextGrid}
-                {TextGrid}
+                {TextGrid1}
+                {TextGrid2}
+                {TextGrid3}
+                {TextGrid4}
 
                 <Grid item xs={6} container justifyContent="flex-start" sx={{ mt: 3 }}>
                     <img
@@ -97,7 +121,7 @@ export default function LandingPage() {
                     />
 
                 </Grid>
-                {TextGrid}
+                {TextGrid3}
             </Grid>
         </>
     );
