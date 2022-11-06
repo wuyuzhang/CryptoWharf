@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import Box from '@mui/material/Box';
 import { alpha, styled } from '@mui/material/styles';
 
-import { Button, FormControl, Typography } from '@mui/material';
+import { Button, TextField, FormControl, Typography } from '@mui/material';
 import InputBase from '@mui/material/InputBase';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
@@ -156,11 +156,13 @@ function Form() {
                             <InputLabel shrink htmlFor="bootstrap-input">
                                 My Project Name Is *
                             </InputLabel>
-                            <InputWithTitle id="project-name"
-                                value={formInput.projectName}
+
+                            <TextField value={formInput.projectName}
                                 onChange={evt => {
                                     setFormInput({ ...formInput, projectName: evt.target.value })
-                                }} />
+                                }}
+                                id="outlined-basic" size="small" sx={{ mt: 4 }} variant="outlined" />
+
                         </FormControl>
                     </Grid>
                     <Grid item xs={6} container justifyContent="flex-start">
@@ -191,11 +193,12 @@ function Form() {
                             <InputLabel shrink htmlFor="why-invest">
                                 Tell Others Why This Project Is A Good Investment *
                             </InputLabel>
-                            <InputWithTitle multiline rows={4} id="why-invest"
-                                value={formInput.whyInvest}
+
+                            <TextField value={formInput.whyInvest} multiline rows={4}
                                 onChange={evt => {
                                     setFormInput({ ...formInput, whyInvest: evt.target.value })
-                                }} />
+                                }}
+                                id="outlined-basic" size="small" sx={{ mt: 4 }} variant="outlined" />
                         </FormControl>
                     </Grid>
                     <Grid item xs={6} container justifyContent="flex-start">
