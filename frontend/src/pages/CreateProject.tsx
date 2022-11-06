@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import Box from '@mui/material/Box';
 import { alpha, styled } from '@mui/material/styles';
 
-import { Button, FormControl } from '@mui/material';
+import { Button, FormControl, Typography } from '@mui/material';
 import InputBase from '@mui/material/InputBase';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
@@ -13,7 +13,9 @@ import Alert from '@mui/material/Alert';
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from '@mui/material/IconButton';
 import Collapse from '@mui/material/Collapse';
-
+// @ts-ignore
+import UserContext from '../context/UserContext.tsx';
+import { Category } from "@mui/icons-material";
 
 
 type FormInput = {
@@ -21,7 +23,8 @@ type FormInput = {
     category: string
     whyInvest: string
     stage: string
-    target: string
+    targetAmount: number
+    targetCoin: string
 }
 
 function Form() {
@@ -33,7 +36,8 @@ function Form() {
         category: '',
         whyInvest: '',
         stage: '',
-        target: ''
+        targetAmount: 0,
+        targetCoin: '',
     });
     const onSubmit = (event: React.ChangeEvent<HTMLInputElement>) => {
         <Alert onClose={() => { }}>
@@ -99,7 +103,11 @@ function Form() {
                             <InputLabel shrink htmlFor="bootstrap-input">
                                 My Project Name Is *
                             </InputLabel>
-                            <InputWithTitle id="project-name" />
+                            <InputWithTitle id="project-name"
+                                value={formInput.projectName}
+                                onChange={evt => {
+                                    setFormInput({ ...formInput, projectName: evt.target.value })
+                                }} />
                         </FormControl>
                     </Grid>
                     <Grid item xs={6} container justifyContent="flex-start">
@@ -108,15 +116,15 @@ function Form() {
                                 Category *
                             </InputLabel>
                             <Select
-                                labelId="demo-select-small"
-                                id="demo-select-small"
-                                value={'Defi'}
+                                labelId="category"
+                                id="category"
+                                value={formInput.category}
                                 label="Category"
                                 sx={{ padding: '10px 12px' }}
+                                onChange={evt => {
+                                    setFormInput({ ...formInput, category: evt.target.value })
+                                }}
                             >
-                                <MenuItem value="">
-                                    <em>None</em>
-                                </MenuItem>
                                 <MenuItem value={'DAO'}>DAO</MenuItem>
                                 <MenuItem value={'DeFi'}>DeFi</MenuItem>
                                 <MenuItem value={'GameFi'}>GameFi</MenuItem>
@@ -127,10 +135,14 @@ function Form() {
                     </Grid>
                     <Grid item xs={12} container justifyContent="flex-start">
                         <FormControl fullWidth variant="standard">
-                            <InputLabel shrink htmlFor="bootstrap-input">
+                            <InputLabel shrink htmlFor="why-invest">
                                 Tell Others Why This Project Is A Good Investment *
                             </InputLabel>
-                            <InputWithTitle multiline rows={4} id="project-name" />
+                            <InputWithTitle multiline rows={4} id="why-invest"
+                                value={formInput.whyInvest}
+                                onChange={evt => {
+                                    setFormInput({ ...formInput, whyInvest: evt.target.value })
+                                }} />
                         </FormControl>
                     </Grid>
                     <Grid item xs={6} container justifyContent="flex-start">
@@ -141,13 +153,13 @@ function Form() {
                             <Select
                                 labelId="stage"
                                 id="stage"
-                                value={'Defi'}
+                                value={formInput.stage}
                                 label="Stage"
                                 sx={{ padding: '10px 12px' }}
+                                onChange={evt => {
+                                    setFormInput({ ...formInput, stage: evt.target.value })
+                                }}
                             >
-                                <MenuItem value="">
-                                    <em>None</em>
-                                </MenuItem>
                                 <MenuItem value={'PreSeed'}>Pre-Seed</MenuItem>
                                 <MenuItem value={'Seed'}>Seed</MenuItem>
                                 <MenuItem value={'EearyStage'}>Early Stage</MenuItem>
@@ -164,21 +176,19 @@ function Form() {
                                 I Target To Raise *
                             </InputLabel>
                             <Select
-                                labelId="stag"
+                                labelId="coin"
                                 id="demo-select-small"
-                                value={'Defi'}
+                                value={formInput.targetCoin}
                                 label="Category"
                                 sx={{ padding: '10px 12px' }}
+                                onChange={evt => {
+                                    setFormInput({ ...formInput, targetCoin: evt.target.value })
+                                }}
                             >
-                                <MenuItem value="">
-                                    <em>None</em>
-                                </MenuItem>
-                                <MenuItem value={'PreSeed'}>Pre-Seed</MenuItem>
-                                <MenuItem value={'Seed'}>Seed</MenuItem>
-                                <MenuItem value={'EearyStage'}>Early Stage</MenuItem>
-                                <MenuItem value={'GrowthStage'}>Growth Stage</MenuItem>
-                                <MenuItem value={'Expansion'}>Expansion Phase</MenuItem>
-                                <MenuItem value={'Exit'}>Exit Phase</MenuItem>
+                                <MenuItem value={'BTC'}>BTC</MenuItem>
+                                <MenuItem value={'ETH'}>ETH</MenuItem>
+                                <MenuItem value={'DAI'}>DAI</MenuItem>
+                                <MenuItem value={'USDC'}>USDC</MenuItem>
 
                             </Select>
                         </FormControl>
@@ -199,15 +209,22 @@ function Form() {
                             <Box
                                 sx={{
                                     width: '40%',
+                                    minHeight: 100,
                                     backgroundColor: '#fcfcfb',
                                     m: 1,
                                     border: 1,
                                     borderColor: '#3F3F3F',
                                     borderStyle: 'dashed',
                                     mt: 4,
+                                    alignItems: '',
+
                                 }}
                             >
-                                {image !== '' &&
+                                {image === '' ? <Typography align='center' sx={{
+                                    backgroundColor: '#fcfcfb',
+                                }}>
+                                    Logo Preview
+                                </Typography> :
                                     <img src={image} width={'100%'}
                                         alt="preview image" />}
                             </Box>
@@ -242,8 +259,9 @@ function Form() {
 
                             <Button
                                 disabled={showSuccess}
-                                variant="outlined"
+                                variant="contained"
                                 onClick={() => {
+                                    console.log(JSON.stringify(formInput));
                                     setShowSuccess(true);
                                 }}
                             >
