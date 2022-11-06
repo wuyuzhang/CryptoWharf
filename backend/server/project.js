@@ -39,7 +39,9 @@ async function createProject(req, res) {
     description: req.body.description,
     stage: req.body.stage,
     coin: req.body.coin,
-    target: req.body.target
+    target: req.body.target,
+    livepeer_upload_url: req.body.livepeer_upload_url,
+    livepeer_playbackurl: req.livepeer_playbackurl
   }
 
   await setData('projects/' + projectId, projectObject)
@@ -65,7 +67,7 @@ async function createProject(req, res) {
   const founder_body = 'We are excited to inform your that your project *' + req.body.name + '* is created successfully on CryptoWharf!'
   await sendNotification(userData.wallet_address, founder_title, founder_body, 3) // 3 -> a target user
 
-  // sned message to all investers
+  // send message to all investers
   const investors_title = 'We have a new project - ' + req.body.name
   const investors_body = 'We are excited to inform your that we have a new project *' + req.body.name + '* is doing fundraising!'
   await sendNotification(userData.wallet_address, investors_title, investors_body, 1) // 1 -> a broadcast
