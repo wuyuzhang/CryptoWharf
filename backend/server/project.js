@@ -40,8 +40,7 @@ async function createProject(req, res) {
     stage: req.body.stage,
     coin: req.body.coin,
     target: req.body.target,
-    livepeer_upload_url: req.body.livepeer_upload_url,
-    livepeer_playbackurl: req.livepeer_playbackurl
+    livepeer_playbackurl: "24bc85jognfuyjz0"
   }
 
   await setData('projects/' + projectId, projectObject)
