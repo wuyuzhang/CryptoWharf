@@ -132,13 +132,12 @@ export default function ProjectList() {
         const signedTx = await web3.eth.accounts.signTransaction(res_json, "7fc22f70a4ee05aa17a3a7db2da7e2a23fcaf0c0f7228e262f74d689da1d9d7a")
 
         // Sending the transaction to the network
-        const swap_tx = await web3.eth
+        await web3.eth
             .sendSignedTransaction(signedTx.rawTransaction)
             .once("transactionHash", (txhash) => {
                 console.log(`Mining transaction ...`);
                 console.log(`https://mumbai.polygonscan.com/tx/${txhash}`);
             });
-        await swap_tx.wait()
 
         // Grant our contract USDC allowance for the converted amount
         const fundraise = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, infuraProvider);
@@ -172,7 +171,6 @@ export default function ProjectList() {
 
     return (
         <>
-            <button onClick={() => investInProject('something', 100000, '')}>swap</button>
             {!userVerified &&
                 <WorldIDWidget
                     actionId="wid_staging_438cadb410ecfe8e7851b4ad4e58b6d9" // obtain this from developer.worldcoin.org
@@ -221,7 +219,7 @@ export default function ProjectList() {
                     </Grid>
                     {
                         Object.keys(projects).map(key =>
-                            <ProjectCard key={key} project={projects[key]} />
+                            <ProjectCard key={key} project_id={key} project={projects[key]} investInProject={investInProject} />
                         )
                     }
                 </Grid>
@@ -237,12 +235,14 @@ type InvestProject = {
 }
 
 function ProjectCard(props: {
-    project: any
+    project_id: string,
+    project: any,
+    investInProject: Function
 }) {
     const [investInput, setInvestInput] = useState<InvestProject>({
-        projectId: '',
-        investAmount: 0,
-        investCoin: 'ETH',
+        projectId: props.project_id,
+        investAmount: 100000,
+        investCoin: 'USDC',
     });
     return (
         <Grid item xs={6} container justifyContent="flex-start">
@@ -319,7 +319,7 @@ function ProjectCard(props: {
 
                             justifyContent: "space-between",
                         }}
-                        value={investInput.investAmount}
+                        value={investInput.investAmount / 1000000.0}
                         inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
                         size="small"
                         onChange={evt => {
@@ -356,6 +356,7 @@ function ProjectCard(props: {
                     }}
                     onClick={() => {
                         console.log(JSON.stringify(investInput));
+                        props.investInProject(investInput.projectId, investInput.investAmount, investInput.investCoin)
                     }}
                 >
                     Confirm

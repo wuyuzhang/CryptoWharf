@@ -57,7 +57,7 @@ async function createProject(req, res) {
     userData.wallet_address,
     projectObject.target,
     0,
-    1667918345,
+    1667918345000,
   )
 
   // PUSH notification
