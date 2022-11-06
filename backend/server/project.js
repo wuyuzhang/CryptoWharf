@@ -127,7 +127,6 @@ async function investInProject(req, res) {
   // Call NFT storage and mint NFT
   const imagePath = "../images/cryptowharf.jpg"
   const description = "Invested $" + amount + " USDC"
-  const result = await storeNFT(imagePath, projectObject.name, description)
   const tokenURI = 'ipfs://bafyreidwhmxqpybwo6uj7acahighy5oby3gcctxgflumugnksybvuimw2a/metadata.json'
 
   // We get the tokenURI and pass it to the smart contract
@@ -135,11 +134,9 @@ async function investInProject(req, res) {
   await nftContract.connect(signer).mint(tokenURI, userData.wallet_address)
 
   // Send push if raise is reaching a milestone
-  if (plan_status[3] + amount >= plan_status[0]) {
-    const title = 'Your project - ' + projectObject.name + ' has raised 100% of your target'
-    const body = 'We are excited to inform your that your project *' + projectObject.name + '* has raised 100% of your target!'
-    await sendNotification(userData.wallet_address, title, body)
-  }
+  const title = 'Your project - ' + projectObject.name + ' has reached your raising target'
+  const body = 'We are excited to inform your that your project *' + projectObject.name + '* has reached your raising target!'
+  await sendNotification(userData.wallet_address, title, body, 3)
 
   return {
     'success': true,
