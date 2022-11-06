@@ -2,7 +2,7 @@ import {
   signCreatePostTypedData, lensHub, splitSignature
 } from '../api'
 
-const createLenPost = async (profileId, ipfsPath) => {
+const createLensPost = async (profileId, ipfsPath) => {
   const createPostRequest = {
     profileId,
     contentURI: 'ipfs://' + ipfsPath,
@@ -42,3 +42,5 @@ const createLenPost = async (profileId, ipfsPath) => {
     console.log('error posting publication: ', err)
   }
 }
+
+module.exports = { createLensPost }

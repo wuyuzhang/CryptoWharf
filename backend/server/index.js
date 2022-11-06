@@ -103,6 +103,11 @@ app.post("/api/get_upload_video_url", (req, res) => {
   })
 });
 
+app.post("/api/create_lens_post", (req, res) => {
+  console.log(req.body)
+  res.json({ message: 'Call received!' })
+});
+
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`)
 })
