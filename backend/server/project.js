@@ -1,7 +1,7 @@
 const { setData, getData } = require('./firebase')
 const { authenticate } = require('./auth')
 const { sendNotification } = require('./push')
-const { storeNFT } = require('/nft_storage')
+const { storeNFT } = require('./nft_storage')
 const { contractABI, nftContractABI } = require("./constants.js")
 const { ethers } = require('ethers');
 const Web3 = require("web3");
