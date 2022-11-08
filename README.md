@@ -19,3 +19,6 @@ Inside `CryptoWharf/`
 #### Deploy backend only
 
 `firebase deploy --only functions`
+
+## Team
+contact@jomo.network
